@@ -12,7 +12,9 @@ A core feature of the application is the study streak system, which tracks conse
 
 Overall, the application reflects the principles of sharing and community building by enabling students to exchange time, support, and knowledge to improve their academic outcomes together.
 **
+
 **Technical Stack
+
 Frontend
 * HTML
 * CSS
@@ -31,6 +33,7 @@ DevOps and Tooling
 * GitHub Projects
 
 **Project Management**
+
 The project is developed using a Scrum-based methodology and delivered iteratively across four sprints.
  Tasks are managed through a GitHub Project Kanban board, allowing our group to plan features, track progress, and collaborate effectively throughout the development process.
 
@@ -49,6 +52,7 @@ The repository follows a standard Express.js project structure, with separate fo
 Docker configuration files are included to ensure a consistent development environment. 
 
 **Team**
+
 * Richard Akole
 * Sita panda
 * Olivia Stars
