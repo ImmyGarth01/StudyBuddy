@@ -11,8 +11,8 @@ The platform allows users to browse subjects, view other students studying simil
 A core feature of the application is the study streak system, which tracks consecutive days of study activity. This feature is designed to motivate students to remain consistent and accountable, while also providing a simple visual representation of personal progress.
 
 Overall, the application reflects the principles of sharing and community building by enabling students to exchange time, support, and knowledge to improve their academic outcomes together.
-
-Technical Stack
+**
+**Technical Stack
 Frontend
 * HTML
 * CSS
@@ -30,7 +30,7 @@ DevOps and Tooling
 * GitHub Actions
 * GitHub Projects
 
-Project Management
+**Project Management**
 The project is developed using a Scrum-based methodology and delivered iteratively across four sprints.
  Tasks are managed through a GitHub Project Kanban board, allowing our group to plan features, track progress, and collaborate effectively throughout the development process.
 
@@ -48,7 +48,7 @@ The repository follows a standard Express.js project structure, with separate fo
 
 Docker configuration files are included to ensure a consistent development environment. 
 
-Team
+**Team**
 * Richard Akole
 * Sita panda
 * Olivia Stars
