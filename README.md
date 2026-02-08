@@ -1,5 +1,4 @@
 StudyBuddy
-
 Project Overview
 
 Relatively, StudyBuddy is a web-based application focused on building a supportive academic community for university students. 
