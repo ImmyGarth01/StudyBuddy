@@ -11,9 +11,8 @@ The platform allows users to browse subjects, view other students studying simil
 A core feature of the application is the study streak system, which tracks consecutive days of study activity. This feature is designed to motivate students to remain consistent and accountable, while also providing a simple visual representation of personal progress.
 
 Overall, the application reflects the principles of sharing and community building by enabling students to exchange time, support, and knowledge to improve their academic outcomes together.
-**
 
-**Technical Stack
+**Technical Stack**
 
 Frontend
 * HTML
@@ -38,12 +37,14 @@ The project is developed using a Scrum-based methodology and delivered iterative
  Tasks are managed through a GitHub Project Kanban board, allowing our group to plan features, track progress, and collaborate effectively throughout the development process.
 
 Running the Project Locally
+
 1. Clone the repository
 2. Ensure Docker is installed and running
 3. Execute the Docker Compose command
 4. Access the application via a web browser at the configured local port
 
-Repository Structure
+**Repository Structure**
+
 The repository follows a standard Express.js project structure, with separate folders for:
 * Routes
 * Views
