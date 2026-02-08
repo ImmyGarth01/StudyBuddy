@@ -36,7 +36,7 @@ DevOps and Tooling
 The project is developed using a Scrum-based methodology and delivered iteratively across four sprints.
  Tasks are managed through a GitHub Project Kanban board, allowing our group to plan features, track progress, and collaborate effectively throughout the development process.
 
-Running the Project Locally
+**Running the Project Locally**
 
 1. Clone the repository
 2. Ensure Docker is installed and running
