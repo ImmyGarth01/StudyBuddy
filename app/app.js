@@ -1,48 +1,70 @@
-// Import express.js
 const express = require("express");
+const path = require("path");
+const app = express();
 
-// Create express app
-var app = express();
-
-// Add static files location
-app.use(express.static("static"));
+// Serve static files from the static folder in the project root
+app.use(express.static(path.join(__dirname, "../static")));
 
 // Get the functions in the db.js file to use
 const db = require('./services/db');
 
-// Create a route for root - /
+// Step 1: Root route
 app.get("/", function(req, res) {
-    res.send("Hello Imogene!"); // Replace Imogene with your name
+    res.send("Hello Immy!");
 });
 
-// Create a route for testing the db
+// Step 4: /roehampton
+app.get("/roehampton", function(req, res) {
+    console.log("Accessed path:", req.url);
+    let path = req.url;
+    res.send(path.substring(0, 3));
+});
+
+// Step 5: Dynamic route /hello/:name
+app.get("/hello/:name", function(req, res) {
+    console.log("Route params:", req.params);
+    const name = req.params.name;
+    res.send("Hello " + name);
+});
+
+// Step 6: Dynamic route /user/:id
+app.get("/user/:id", function(req, res) {
+    const userId = req.params.id;
+    res.send("User ID: " + userId);
+});
+
+// Step 7: Dynamic route /student/:name/:id
+app.get("/student/:name/:id", function(req, res) {
+    const name = req.params.name;
+    const id = req.params.id;
+    res.send(`
+        <table border="1">
+            <tr><th>Name</th><th>ID</th></tr>
+            <tr><td>${name}</td><td>${id}</td></tr>
+        </table>
+    `);
+});
+
+// Step 9: Database test
 app.get("/db_test", function(req, res) {
-    // Assumes a table called test_table exists in your database
-    sql = 'select * from test_table';
-    db.query(sql).then(results => {
-        console.log(results);
-        res.send(results)
-    });
+    const sql = 'SELECT * FROM test_table';
+    db.query(sql)
+      .then(results => {
+          console.log(results);
+          res.send(results);
+      })
+      .catch(err => {
+          console.error("DB error:", err);
+          res.status(500).send("Database error");
+      });
 });
 
-// Create a route for /goodbye
-// Responds to a 'GET' request
+// /goodbye route
 app.get("/goodbye", function(req, res) {
     res.send("Goodbye world!");
 });
 
-// Create a dynamic route for /hello/<name>, where name is any value provided by user
-// At the end of the URL
-// Responds to a 'GET' request
-app.get("/hello/:name", function(req, res) {
-    // req.params contains any parameters in the request
-    // We can examine it in the console for debugging purposes
-    console.log(req.params);
-    //  Retrieve the 'name' parameter and use it in a dynamically generated page
-    res.send("Hello " + req.params.name);
-});
-
-// Start server on port 3000
-app.listen(3000,function(){
+// Start server
+app.listen(3000, function(){
     console.log(`Server running at http://127.0.0.1:3000/`);
 });
