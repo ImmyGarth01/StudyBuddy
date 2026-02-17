@@ -15,4 +15,6 @@ COPY . .
 # Expose the port
 EXPOSE 3000
 
+# START THE APP (THIS WAS MISSING)
+CMD ["npm", "start"]
 
