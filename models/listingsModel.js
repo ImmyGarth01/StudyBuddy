@@ -1,4 +1,4 @@
-const db = require('../database');
+const db = require('../config/database');
 
 async function getAllListings() {
   const [rows] = await db.query('SELECT * FROM listings');
