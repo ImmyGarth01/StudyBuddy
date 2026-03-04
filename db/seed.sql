@@ -19,7 +19,7 @@ INSERT INTO modules (course_id, category_name, level) VALUES
 (103, 'Web Development', 'Beginner'),
 (104, 'Databases', 'Advanced');
 
-INSERT INTO listings (user_id, tag_id, title, start_time, end_time, location, status, module)
+INSERT INTO listings (user_id, title, start_time, end_time, location, status, module)
 VALUES
 (1, 1, 'Network Security Revision', '2026-03-01 10:00', '2026-03-01 12:00', 'Library A', 'Open', 'Networking'),
 (2, 2, 'Marketing Exam Prep', '2026-03-02 14:00', '2026-03-02 16:00', 'Library B', 'Open', 'Marketing'),
