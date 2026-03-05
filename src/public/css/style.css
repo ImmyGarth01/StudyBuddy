@@ -1,0 +1,202 @@
+/* =========================
+   StudyBuddy – simple clean UI
+   ========================= */
+
+:root{
+  --bg: #f6f7fb;
+  --text: #111827;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --shadow: 0 10px 25px rgba(0,0,0,0.06);
+  --radius: 14px;
+  --accent: #2563eb;
+  --accent2: #7c3aed;
+}
+
+* { box-sizing: border-box; }
+
+body{
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 20% 0%, #eef2ff 0%, transparent 60%),
+              radial-gradient(900px 500px at 100% 20%, #f5e9ff 0%, transparent 55%),
+              var(--bg);
+  line-height: 1.55;
+}
+
+/* layout container */
+header, main{
+  width: min(980px, 92vw);
+  margin: 0 auto;
+}
+
+header{
+  padding: 28px 0 12px;
+}
+
+header h1{
+  margin: 0 0 12px;
+  font-size: clamp(28px, 3.2vw, 40px);
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* nav */
+nav{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+}
+
+nav a{
+  color: var(--text);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 999px;
+  transition: transform 0.08s ease, background 0.15s ease;
+}
+
+nav a:hover{
+  background: rgba(37, 99, 235, 0.10);
+  transform: translateY(-1px);
+}
+
+hr{
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+main{
+  padding: 10px 0 40px;
+}
+
+/* headings */
+h2{
+  margin: 18px 0 10px;
+  font-size: 20px;
+}
+
+p{
+  color: var(--muted);
+}
+
+/* card sections */
+section, .card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+  margin: 14px 0;
+}
+
+/* lists */
+ul{
+  padding-left: 18px;
+  margin: 10px 0 0;
+}
+
+li{
+  margin: 6px 0;
+}
+
+/* links in content */
+main a{
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+main a:hover{
+  text-decoration: underline;
+}
+
+/* tables (if you ever use them) */
+table{
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+th, td{
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+th{
+  background: #f3f4f6;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #374151;
+}
+
+/* forms */
+form{
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+label{
+  font-weight: 700;
+  font-size: 14px;
+}
+
+input, select, textarea{
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.9);
+  outline: none;
+}
+
+input:focus, select:focus, textarea:focus{
+  border-color: rgba(37,99,235,0.6);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+/* buttons (if you have any) */
+button, .btn{
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  box-shadow: 0 10px 18px rgba(37,99,235,0.18);
+}
+
+button:hover, .btn:hover{
+  filter: brightness(1.02);
+}
+
+.small{
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* mobile tweaks */
+@media (max-width: 520px){
+  nav{
+    border-radius: 14px;
+  }
+}

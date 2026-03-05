@@ -11,7 +11,7 @@ app.set("views", path.join(__dirname, "views", "views"));
 app.set("view engine", "pug");
 
 // Serves static files (css, images, etc)
-app.use(express.static(path.join(__dirname, "../static")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Database helper
 const db = require("./services/db");
@@ -40,7 +40,7 @@ app.get("/users", async (req, res) => {
   try {
     const degree = (req.query.degree || "").trim();
 
-    // Get ALL degrees for the "Courses" list (so it doesn't change when you filter)
+    // Get ALL degrees for the "Courses" list 
     const degreeRows = await db.query(
       "SELECT DISTINCT degree FROM users ORDER BY degree ASC"
     );
