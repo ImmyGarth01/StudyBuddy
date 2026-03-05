@@ -1,0 +1,18 @@
+extend layout
+
+block content 
+  h1 Users
+
+  h2 Courses
+  ul
+  each d in degrees
+    li
+      a(href=`/users?degree=${encodeURIComponent(d)}`)= d
+
+  hr
+
+  h2 Students
+  ul
+  each user in users
+    li
+      a(href=`/users/${user.user_id}`)= `${user.first_name} ${user.last_name} (${user.degree})`

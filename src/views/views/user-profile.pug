@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h2 #{user.firstName} #{user.lastName}
+
+  p
+    strong Degree:
+    |  #{user.degree}
+
+  br
+  a(href="/users") ← Back to Users

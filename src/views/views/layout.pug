@@ -1,0 +1,19 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title= title || "StudyBuddy"
+    link(rel="stylesheet" href="/css/style.css")
+  body
+    header
+      h1 StudyBuddy
+      nav
+        a(href="/") Home
+        |  · 
+        a(href="/users") Users
+        |  · 
+        a(href="/login") Login
+    hr
+    main
+      block content
