@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  h2 Create User
+
+  form(method="POST", action="/users")
+    div
+      label First Name:
+      input(type="text", name="firstName")
+
+    div
+      label Last Name:
+      input(type="text", name="lastName")
+
+    div
+      label Degree:
+      input(type="text", name="degree")
+
+    button(type="submit") Create User
