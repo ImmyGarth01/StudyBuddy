@@ -55,7 +55,7 @@ Docker configuration files are included to ensure a consistent development envir
 **Team**
 
 * Richard Akole
-* Sita panda
+* Sita Panda
 * Olivia Stars
 * Imogene Garthwaite
 * Christy Francis
