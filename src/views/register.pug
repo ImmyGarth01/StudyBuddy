@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  h2 Register
+  p Create a new StudyBuddy account.
+
+  form(method="POST" action="/register")
+    div
+      label Username
+      input(type="text" name="username")
+
+    div
+      label Email
+      input(type="email" name="email")
+
+    div
+      label Password
+      input(type="password" name="password")
+
+    button(type="submit") Register

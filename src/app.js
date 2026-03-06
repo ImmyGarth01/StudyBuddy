@@ -7,7 +7,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 
 // Tells Express where the pug files are
-app.set("views", path.join(__dirname, "views", "views"));
+app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
 // Serves static files (css, images, etc)
@@ -134,6 +134,18 @@ app.get("/users/:id", async (req, res) => {
     console.error("User profile error:", err);
     res.status(500).send("Something went wrong loading that user.");
   }
+});
+//  register routing page
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+// streaks routing page
+app.get("/streaks", (req, res) => {
+  res.render("streaks");
+});
+// listings routing page
+app.get("/listings", (req, res) => {
+  res.render("listings");
 });
 
 // =====================================================
