@@ -143,9 +143,20 @@ app.get("/register", (req, res) => {
 app.get("/streaks", (req, res) => {
   res.render("streaks");
 });
+
 // listings routing page
-app.get("/listings", (req, res) => {
-  res.render("listings");
+//Olivia: listing route updated to pull study sessions from the db:
+app.get("/listings", async (req, res) => {
+  try {
+    const listings = await db.query("SELECT * FROM listings");
+    console.log(listings)
+    res.json(listings);
+    res.render("Study Sessions: ", listings)
+
+  } catch (err) {
+    console.error("DB test error:", err);
+    res.status(500).send("Database error");
+  } 
 });
 
 // =====================================================
@@ -192,7 +203,7 @@ app.get("/goodbye", (req, res) => {
 // DB TEST
 // =====================================================
 app.get("/db_test", async (req, res) => {
-  try {
+   try {
     const users = await db.query("SELECT * FROM users");
     res.json(users);
   } catch (err) {

@@ -1,19 +1,29 @@
-const mysql = require("mysql2/promise");
+require("dotenv").config();
 
-const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST || "db",
-  port: Number(process.env.MYSQL_PORT || 3306),
-  user: process.env.MYSQL_USER || "root",
-  password: process.env.MYSQL_PASSWORD || "password",
-  database: process.env.MYSQL_DATABASE || "sd2-db",
-  waitForConnections: true,
-  connectionLimit: 5,
-  queueLimit: 0,
-});
+const mysql = require('mysql2/promise');
 
-async function query(sql, params = []) {
-  const [rows] = await pool.execute(sql, params);
+const config = {
+  db: { /* do not put password or any sensitive info here, done only for demo */
+    host: process.env.DB_CONTAINER,
+    port: process.env.DB_PORT,
+    user: process.env.MYSQL_ROOT_USER,
+    password: process.env.MYSQL_ROOT_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    waitForConnections: true,
+    connectionLimit: 2,
+    queueLimit: 0,
+  },
+};
+  
+const pool = mysql.createPool(config.db);
+
+// Utility function to query the database
+async function query(sql, params) {
+  const [rows, fields] = await pool.execute(sql, params);
+
   return rows;
 }
 
-module.exports = { query };
+module.exports = {
+  query,
+}
