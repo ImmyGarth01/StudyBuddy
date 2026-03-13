@@ -2,19 +2,18 @@ extends layout
 
 block content
   h2 Register
-  p Create a new StudyBuddy account.
 
   form(method="POST" action="/register")
     div
-      label Username
-      input(type="text" name="username")
+      label(for="first_name") First Name
+      input(type="text" name="first_name" id="first_name" required)
 
     div
-      label Email
-      input(type="email" name="email")
+      label(for="last_name") Last Name
+      input(type="text" name="last_name" id="last_name" required)
 
     div
-      label Password
-      input(type="password" name="password")
+      label(for="degree") Degree
+      input(type="text" name="degree" id="degree" required)
 
     button(type="submit") Register

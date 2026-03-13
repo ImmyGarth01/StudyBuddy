@@ -23,12 +23,207 @@ const pagesRoutes = require("./routes/pages");
 const usersRoutes = require("./routes/users");
 const listingsRoutes = require("./routes/listings");
 
+
+// Home page 
+app.get("/", (req, res) => {
+  res.render("home", { title: "Home" });
+});
+
+// Login page (so navbar link doesn't break)
+app.get("/login", (req, res) => {
+  res.render("login", { title: "Login" });
+});
+
+// =========================
+// USERS LIST PAGE
+// =========================
+app.get("/users", async (req, res) => {
+  try {
+    const selectedDegree = req.query.degree;
+
+    // get all unique degrees for the filter list
+    const [degrees] = await db.query(
+      "SELECT DISTINCT degree FROM users ORDER BY degree ASC"
+    );
+
+    let users;
+    if (selectedDegree) {
+      [users] = await db.query(
+        "SELECT user_id, first_name, last_name, degree FROM users WHERE degree = ? ORDER BY first_name ASC",
+        [selectedDegree]
+      );
+    } else {
+      [users] = await db.query(
+        "SELECT user_id, first_name, last_name, degree FROM users ORDER BY first_name ASC"
+      );
+    }
+
+    res.render("users", {
+      title: "Users",
+      degrees,
+      users,
+      selectedDegree
+    });
+  } catch (err) {
+    console.error("Users list error:", err);
+    res.status(500).send("Something went wrong loading users.");
+  }
+});
+
+
+// =========================
+// USER PROFILE PAGE
+// =========================
+app.get("/users/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const [rows] = await db.query(
+      "SELECT user_id, first_name, last_name, degree FROM users WHERE user_id = ?",
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send("User not found.");
+    }
+
+    res.render("user-profile", {
+      title: `${rows[0].first_name} ${rows[0].last_name}`,
+      user: rows[0]
+    });
+  } catch (err) {
+    console.error("User profile error:", err);
+    res.status(500).send("Something went wrong loading user profile.");
+  }
+});
+
+
+// 3) CREATE USER (form submit)
+app.post("/users", async (req, res) => {
+  try {
+    const firstName = (req.body.firstName || "").trim();
+    const lastName = (req.body.lastName || "").trim();
+    const degree = (req.body.degree || "").trim();
+
+    if (!firstName || !lastName || !degree) {
+      return res
+        .status(400)
+        .send("Please fill in First Name, Last Name, and Degree.");
+    }
+
+    // Keeping this simple for now
+    const password = "Bfsnode112";
+    const sessionIds = "";
+
+    const insertSql = `
+      INSERT INTO users (first_name, last_name, password, degree, session_ids)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    const result = await db.query(insertSql, [
+      firstName,
+      lastName,
+      password,
+      degree,
+      sessionIds,
+    ]);
+
+    res.redirect(`/users/${result.insertId}`);
+  } catch (err) {
+    console.error("Create user error:", err);
+    res.status(500).send("Something went wrong creating that user.");
+  }
+});
+
+// 4) USER PROFILE PAGE
+app.get("/users/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      return res.status(400).send("Invalid user id.");
+    }
+
+    const rows = await db.query(
+      "SELECT user_id, first_name, last_name, degree FROM users WHERE user_id = ?",
+      [id]
+    );
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    res.render("user-profile", {
+      title: `${rows[0].first_name} ${rows[0].last_name}`,
+      user: rows[0],
+    });
+  } catch (err) {
+    console.error("User profile error:", err);
+    res.status(500).send("Something went wrong loading that user.");
+  }
+});
+
+
+//  REGISTER PAGE & FORM HANDLER
+
+// register page
+app.get("/register", (req, res) => {
+  res.render("register", { title: "Register" });
+});
+
+// handle register form submission
+app.post("/register", async (req, res) => {
+  try {
+    const { first_name, last_name, degree } = req.body;
+
+    await db.query(
+      "INSERT INTO users (first_name, last_name, degree) VALUES (?, ?, ?)",
+      [first_name, last_name, degree]
+    );
+
+    res.redirect("/users");
+  } catch (err) {
+    console.error("Register error:", err);
+    res.status(500).send("Something went wrong while registering user.");
+  }
+});
+
+
+// streaks routing page
+app.get("/streaks", (req, res) => {
+  res.render("streaks");
+});
+
+
+// listings routing page
+app.get("/listings", async (req, res) => {
+  try {
+    const sql = `
+      SELECT listing_id, title, module, location, start_time, status
+      FROM listings
+      ORDER BY start_time ASC
+    `;
+
+    const [rows] = await db.query(sql);
+
+    res.render("listings", {
+      title: "Listings",
+      listings: rows
+    });
+  } catch (err) {
+    console.error("Listings page error:", err);
+    res.status(500).send("Something went wrong loading listings");
+  }
+});
+
 // --------------------
 // USE ROUTES
 // --------------------
 app.use("/", pagesRoutes);          // Home, login, register, streaks
 app.use("/users", usersRoutes);     // All user-related routes
 app.use("/listings", listingsRoutes); // Listings / study sessions
+
+
 
 // =====================================================
 // DB TEST
