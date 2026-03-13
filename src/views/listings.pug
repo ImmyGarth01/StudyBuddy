@@ -2,7 +2,24 @@ extends layout
 
 block content
   h2 Study Listings
-  p Find study partners or create a listing.
+  p Find study partners or browse available study sessions.
 
-  ul
-    li No listings available yet.
+  if listings.length === 0
+    p No listings available yet.
+  else
+    ul
+      each listing in listings
+        li
+          h3= listing.title
+          p
+            strong Module:
+            |  #{listing.module}
+          p
+            strong Location:
+            |  #{listing.location}
+          p
+            strong Start time:
+            |  #{listing.start_time}
+          p
+            strong Status:
+            |  #{listing.status}

@@ -143,49 +143,26 @@ app.get("/register", (req, res) => {
 app.get("/streaks", (req, res) => {
   res.render("streaks");
 });
+
 // listings routing page
-app.get("/listings", (req, res) => {
-  res.render("listings");
-});
+app.get("/listings", async (req, res) => {
+  try {
+    const sql = `
+      SELECT listing_id, title, module, location, start_time, status
+      FROM listings
+      ORDER BY start_time ASC
+    `;
 
-// =====================================================
-// LAB ROUTES
-// =====================================================
+    const [rows] = await db.query(sql);
 
-// Step 4: /roehampton
-app.get("/roehampton", (req, res) => {
-  console.log("Accessed path:", req.url);
-  const pathStr = req.url;
-  res.send(pathStr.substring(0, 3));
-});
-
-// Step 5: Dynamic route /hello/:name
-app.get("/hello/:name", (req, res) => {
-  console.log("Route params:", req.params);
-  res.send("Hello " + req.params.name);
-});
-
-// Step 6: Dynamic route /user/:id
-app.get("/user/:id", (req, res) => {
-  res.send("User ID: " + req.params.id);
-});
-
-// Step 7: Dynamic route /student/:name/:id
-app.get("/student/:name/:id", (req, res) => {
-  const name = req.params.name;
-  const id = req.params.id;
-
-  res.send(`
-    <table border="1">
-      <tr><th>Name</th><th>ID</th></tr>
-      <tr><td>${name}</td><td>${id}</td></tr>
-    </table>
-  `);
-});
-
-// /goodbye route
-app.get("/goodbye", (req, res) => {
-  res.send("Goodbye world!");
+    res.render("listings", {
+      title: "Listings",
+      listings: rows
+    });
+  } catch (err) {
+    console.error("Listings page error:", err);
+    res.status(500).send("Something went wrong loading listings");
+  }
 });
 
 // =====================================================
