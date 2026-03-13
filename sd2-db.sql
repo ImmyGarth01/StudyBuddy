@@ -1,66 +1,35 @@
--- phpMyAdmin SQL Dump
--- version 5.1.1
--- https://www.phpmyadmin.net/
---
--- Host: db
--- Generation Time: Oct 30, 2022 at 09:54 AM
--- Server version: 8.0.24
--- PHP Version: 7.4.20
+DROP DATABASE IF EXISTS db;
+CREATE DATABASE db;
+USE db;
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- USERS TABLE
+CREATE TABLE users (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  degree VARCHAR(100) NOT NULL
+);
 
+INSERT INTO users (first_name, last_name, degree) VALUES
+('Azeez', 'Bello', 'Cybersecurity'),
+('Olayinka', 'Jibola', 'Business & Computing'),
+('Tom', 'Francis', 'Computer Science'),
+('Gloria', 'Amelia', 'Computing'),
+('Sally', 'Smith', 'Digital Media');
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+-- LISTINGS TABLE
+CREATE TABLE listings (
+  listing_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  title VARCHAR(255) NOT NULL,
+  module VARCHAR(255) NOT NULL,
+  location VARCHAR(255) NOT NULL,
+  start_time DATETIME NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
 
---
--- Database: `sd2-db`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `test_table`
---
-
-CREATE TABLE `test_table` (
-  `id` int NOT NULL,
-  `name` varchar(512) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `test_table`
---
-
-INSERT INTO `test_table` (`id`, `name`) VALUES
-(1, 'Lisa'),
-(2, 'Kimia');
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `test_table`
---
-ALTER TABLE `test_table`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `test_table`
---
-ALTER TABLE `test_table`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+INSERT INTO listings (user_id, title, module, location, start_time, status) VALUES
+(1, 'Network Security Revision', 'Cybersecurity', 'Library Room A', '2026-03-15 14:00:00', 'Open'),
+(2, 'Marketing Exam Prep', 'Business', 'Study Hall 2', '2026-03-16 10:00:00', 'Open'),
+(3, 'Web Dev Pair Programming', 'Computer Science', 'Lab 3', '2026-03-17 16:00:00', 'Open');
