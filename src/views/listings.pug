@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  //Olivia: layout of listing page editted to show study sessions:
   h2 Study Listings
   p Find study partners or browse available study sessions.
 
@@ -10,8 +9,9 @@ block content
   else
     ul
       each listing in listings
-        li
-          h3= listing.title
+        div.card
+          h3
+            a(href=`/listings/${listing.listing_id}`)= listing.title
           p
             strong Module:
             |  #{listing.module}

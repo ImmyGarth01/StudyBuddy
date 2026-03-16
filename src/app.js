@@ -1,53 +1,57 @@
 // app.js (StudyBuddy)
+
 const express = require("express");
 const path = require("path");
 const app = express();
 
-// Lets the app read data coming from forms (POST)
+// Parse form data
 app.use(express.urlencoded({ extended: true }));
 
-// Tells Express where the pug files are
+// View engine
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
-// Serves static files (css, images, etc)
+// Static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Database helper
+// Database
 const db = require("./services/db");
 
-// --------------------
-// ROUTE IMPORTS
-// --------------------
-const pagesRoutes = require("./routes/pages");
-const usersRoutes = require("./routes/users");
-const listingsRoutes = require("./routes/listings");
-const tagsRoutes = require("./routes/tags");
 
-
-// Home page 
+// =========================
+// HOME
+// =========================
 app.get("/", (req, res) => {
   res.render("home", { title: "Home" });
 });
 
-// Login page (so navbar link doesn't break)
+
+// =========================
+// LOGIN
+// =========================
+
+app.post("/login", (req, res) => {
+  res.send("Login functionality not fully implemented yet.");
+});
+
 app.get("/login", (req, res) => {
   res.render("login", { title: "Login" });
 });
 
+
 // =========================
-// USERS LIST PAGE
+// USERS LIST
 // =========================
 app.get("/users", async (req, res) => {
   try {
     const selectedDegree = req.query.degree;
 
-    // get all unique degrees for the filter list
     const [degrees] = await db.query(
       "SELECT DISTINCT degree FROM users ORDER BY degree ASC"
     );
 
     let users;
+
     if (selectedDegree) {
       [users] = await db.query(
         "SELECT user_id, first_name, last_name, degree FROM users WHERE degree = ? ORDER BY first_name ASC",
@@ -65,18 +69,20 @@ app.get("/users", async (req, res) => {
       users,
       selectedDegree
     });
+
   } catch (err) {
     console.error("Users list error:", err);
-    res.status(500).send("Something went wrong loading users.");
+    res.status(500).send("Error loading users.");
   }
 });
 
 
 // =========================
-// USER PROFILE PAGE
+// USER PROFILE
 // =========================
 app.get("/users/:id", async (req, res) => {
   try {
+
     const userId = req.params.id;
 
     const [rows] = await db.query(
@@ -92,89 +98,29 @@ app.get("/users/:id", async (req, res) => {
       title: `${rows[0].first_name} ${rows[0].last_name}`,
       user: rows[0]
     });
+
   } catch (err) {
     console.error("User profile error:", err);
-    res.status(500).send("Something went wrong loading user profile.");
+    res.status(500).send("Error loading user.");
   }
 });
 
 
-// 3) CREATE USER (form submit)
-app.post("/users", async (req, res) => {
-  try {
-    const firstName = (req.body.firstName || "").trim();
-    const lastName = (req.body.lastName || "").trim();
-    const degree = (req.body.degree || "").trim();
-
-    if (!firstName || !lastName || !degree) {
-      return res
-        .status(400)
-        .send("Please fill in First Name, Last Name, and Degree.");
-    }
-
-    // Keeping this simple for now
-    const password = "Bfsnode112";
-    const sessionIds = "";
-
-    const insertSql = `
-      INSERT INTO users (first_name, last_name, password, degree, session_ids)
-      VALUES (?, ?, ?, ?, ?)
-    `;
-
-    const result = await db.query(insertSql, [
-      firstName,
-      lastName,
-      password,
-      degree,
-      sessionIds,
-    ]);
-
-    res.redirect(`/users/${result.insertId}`);
-  } catch (err) {
-    console.error("Create user error:", err);
-    res.status(500).send("Something went wrong creating that user.");
-  }
-});
-
-// 4) USER PROFILE PAGE
-app.get("/users/:id", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    if (Number.isNaN(id)) {
-      return res.status(400).send("Invalid user id.");
-    }
-
-    const rows = await db.query(
-      "SELECT user_id, first_name, last_name, degree FROM users WHERE user_id = ?",
-      [id]
-    );
-
-    if (!rows || rows.length === 0) {
-      return res.status(404).send("User not found");
-    }
-
-    res.render("user-profile", {
-      title: `${rows[0].first_name} ${rows[0].last_name}`,
-      user: rows[0],
-    });
-  } catch (err) {
-    console.error("User profile error:", err);
-    res.status(500).send("Something went wrong loading that user.");
-  }
-});
-
-
-//  REGISTER PAGE & FORM HANDLER
-
-// register page
+// =========================
+// REGISTER PAGE
+// =========================
 app.get("/register", (req, res) => {
   res.render("register", { title: "Register" });
 });
 
-// handle register form submission
+
+// =========================
+// REGISTER SUBMIT
+// =========================
 app.post("/register", async (req, res) => {
+
   try {
+
     const { first_name, last_name, degree } = req.body;
 
     await db.query(
@@ -183,65 +129,121 @@ app.post("/register", async (req, res) => {
     );
 
     res.redirect("/users");
+
   } catch (err) {
     console.error("Register error:", err);
-    res.status(500).send("Something went wrong while registering user.");
+    res.status(500).send("Error registering user.");
   }
 });
 
 
-// streaks routing page
-app.get("/streaks", (req, res) => {
-  res.render("streaks");
-});
-
-
-// listings routing page
+// =========================
+// LISTINGS PAGE
+// =========================
 app.get("/listings", async (req, res) => {
   try {
-    const sql = `
+
+    const [rows] = await db.query(`
       SELECT listing_id, title, module, location, start_time, status
       FROM listings
       ORDER BY start_time ASC
-    `;
-
-    const [rows] = await db.query(sql);
+    `);
 
     res.render("listings", {
       title: "Listings",
       listings: rows
     });
+
   } catch (err) {
-    console.error("Listings page error:", err);
-    res.status(500).send("Something went wrong loading listings");
+    console.error(err);
+    res.status(500).send("Listings error");
   }
 });
 
-// --------------------
-// USE ROUTES
-// --------------------
-app.use("/", pagesRoutes);          // Home, login, register, streaks
-app.use("/users", usersRoutes);     // All user-related routes
-app.use("/listings", listingsRoutes); // Listings / study sessions
-app.use("/tags", tagsRoutes); 
 
 
+// =========================
+// LISTING DETAILS PAGE
+// =========================
+app.get("/listings/:id", async (req, res) => {
+  try {
 
-// =====================================================
+    const listingId = req.params.id;
+
+    const [rows] = await db.query(
+      `SELECT listing_id, title, module, location, start_time, status
+       FROM listings
+       WHERE listing_id = ?`,
+      [listingId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send("Listing not found");
+    }
+
+    res.render("listing-details", {
+      title: rows[0].title,
+      listing: rows[0]
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Listing details error");
+  }
+});
+
+
+// =========================
+// TAGS PAGE
+// =========================
+app.get("/tags", async (req, res) => {
+
+  try {
+
+    const [tags] = await db.query(
+      "SELECT DISTINCT degree FROM users ORDER BY degree ASC"
+    );
+
+    res.render("tags", {
+      title: "Tags",
+      tags
+    });
+
+  } catch (err) {
+    console.error("Tags error:", err);
+    res.status(500).send("Error loading tags.");
+  }
+
+});
+
+
+// =========================
+// STREAKS
+// =========================
+app.get("/streaks", (req, res) => {
+  res.render("streaks", { title: "Streaks" });
+});
+
+
+// =========================
 // DB TEST
-// =====================================================
+// =========================
 app.get("/db_test", async (req, res) => {
+
   try {
     const users = await db.query("SELECT * FROM users");
     res.json(users);
   } catch (err) {
-    console.error("DB test error:", err);
+    console.error("DB error:", err);
     res.status(500).send("Database error");
   }
+
 });
 
-// Start server
+
+// =========================
+// START SERVER
+// =========================
 app.listen(3000, () => {
   console.log("Server running at http://127.0.0.1:3000/");
-  console.log("Try: http://127.0.0.1:3000/users");
 });
