@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  h2 Listing Details
+
+  p
+    strong Title:
+    |  #{listing.title}
+
+  p
+    strong Module:
+    |  #{listing.module}
+
+  p
+    strong Location:
+    |  #{listing.location}
+
+  p
+    strong Start Time:
+    |  #{listing.start_time}
+
+  p
+    strong Status:
+    |  #{listing.status}
+
+  if listing.first_name && listing.last_name
+    p
+      strong Created by:
+      |  #{listing.first_name} #{listing.last_name}
+
+  p
+    a(href="/listings") Back to Listings

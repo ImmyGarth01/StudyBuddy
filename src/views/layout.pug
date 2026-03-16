@@ -2,7 +2,7 @@ doctype html
 html
   head
     meta(charset="utf-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
     title= title || "StudyBuddy"
     link(rel="stylesheet" href="/css/style.css")
   body
@@ -13,14 +13,17 @@ html
         |  · 
         a(href="/users") Users
         |  · 
-        a(href="/login") Login
+        a(href="/listings") Listings
+        |  · 
+        a(href="/tags") Tags
         |  · 
         a(href="/register") Register
         |  · 
+        a(href="/login") Login
+        |  · 
         a(href="/streaks") Streaks
-        |  ·
-        a(href="/tags)") Subjects         
-           
+
     hr
+
     main
       block content

@@ -1,13 +1,11 @@
 extends layout
 
 block content
-  h2 Subjects
-  p Choose a subject to view available study sessions.
+  h2 Tags / Categories
 
   if tags.length === 0
-    p No subjects available.
+    p No tags available yet.
   else
     ul
       each tag in tags
-        li
-          a(href=`/tags/${tag.tag_id}`)= tag.name
+        li= tag.degree

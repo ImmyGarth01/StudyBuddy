@@ -1,15 +1,19 @@
-const express = require("express");
-const router = express.Router();
-const db = require("../services/db");
-
-router.get("/", async (req, res) => {
+app.get("/listings", async (req, res) => {
   try {
-    const listings = await db.query("SELECT * FROM listings");
-    res.json(listings);
+
+    const [rows] = await db.query(`
+      SELECT listing_id, title, module, location, start_time, status
+      FROM listings
+      ORDER BY start_time ASC
+    `);
+
+    res.render("listings", {
+      title: "Listings",
+      listings: rows
+    });
+
   } catch (err) {
-    console.error("Listings error:", err);
-    res.status(500).send("Database error");
+    console.error(err);
+    res.status(500).send("Listings error");
   }
 });
-
-module.exports = router;
