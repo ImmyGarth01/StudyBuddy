@@ -51,3 +51,14 @@ CREATE TABLE streaks (
   FOREIGN KEY (user1_id) REFERENCES users(user_id),
   FOREIGN KEY (user2_id) REFERENCES users(user_id)
 );
+
+CREATE TABLE join_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  listing_id INT NOT NULL,
+  status ENUM('pending', 'accepted', 'declined') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+);

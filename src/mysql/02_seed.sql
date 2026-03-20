@@ -41,3 +41,11 @@ INSERT INTO listing_tags (listing_id, tag_id) VALUES
 INSERT INTO streaks (user1_id, user2_id, session_ids, start_date, `current_date`, current_count)
 VALUES
 (1, 3, '1,4', '2026-02-20', '2026-02-27', 7);
+
+-- 7) JOIN REQUESTS
+INSERT INTO join_requests (user_id, listing_id, status)
+VALUES
+(2, 1, 'pending'),
+(3, 1, 'accepted'),
+(4, 2, 'pending'),
+(5, 3, 'declined');

@@ -8,25 +8,29 @@ block content
   .listings-container
     each listing in listings
       .listing-card
-
         img.profile(src="/images/userdefaultpic.jpg")
 
         h3= listing.title
 
         p
           strong Module:
-          |  #{listing.module}
+          | #{listing.module}
 
         p
           strong Location:
-          |  #{listing.location}
+          | #{listing.location}
 
         p
           strong Start time:
-          |  #{listing.start_time}
+          | #{listing.start_time}
 
         p
           strong Status:
-          |  #{listing.status}
+          | #{listing.status}
 
-        button.join-btn Request to Join
+        .join-container
+          if requestedListingIds.includes(listing.listing_id)
+            button.join-btn(disabled) Request Sent
+          else
+            form(method="POST" action=`/listings/${listing.listing_id}/join`)
+              button.join-btn(type="submit") Request to Join

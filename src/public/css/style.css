@@ -196,17 +196,24 @@ button:hover, .btn:hover{
 
 /* Listings grid layout */
 
-.listings-container{
+.listings-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
-  margin-top: 30px;
+  margin: 30px auto;
+  max-width: 1200px;
+}
+
+.listings-container {
+  max-width: 1200px;
+  margin: 30px auto;
 }
 
 .listing-card{
   background: #111827;
   border: 1px solid #374151;
   border-radius: 12px;
+  width: 100%;
   padding: 20px;
   text-align: center;
 }
@@ -229,8 +236,23 @@ button:hover, .btn:hover{
   cursor: pointer;
 }
 
+.join-btn {
+  display: inline-block;
+  width: auto;
+}
+
 .join-btn:hover{
   background: #1d4ed8;
+}
+
+.join-container {
+  margin-top: 15px;
+  text-align: center;
+}
+
+/*fixes layout of listings: */
+.join-container form {
+  display: inline-block; 
 }
 
 /* mobile tweaks */
