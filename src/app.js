@@ -3,9 +3,29 @@
 const express = require("express");
 const path = require("path");
 const app = express();
+const session = require("express-session");
 
 // Parse form data
 app.use(express.urlencoded({ extended: true }));
+
+// Sessions
+app.use(session({
+  secret: "studybuddy-secret",
+  resave: false,
+  saveUninitialized: false
+}));
+
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+  next();
+}
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
+  next();
+}); 
 
 // View engine
 app.set("views", path.join(__dirname, "views"));
@@ -15,34 +35,81 @@ app.set("view engine", "pug");
 app.use(express.static(path.join(__dirname, "public")));
 
 // Database
-const db = require("./services/db");
+const mysql = require("mysql2/promise");
 
+const db = mysql.createPool({
+  host: "db",
+  user: "root",     
+  password: "password",  
+  database: "studybuddy"
+});
+// =====================
+// Login In Page - Opening Page
+// =========================
+app.get("/", requireLogin, (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
 
-// =========================
-// HOME
-// =========================
-app.get("/", (req, res) => {
   res.render("home", { title: "Home" });
 });
-
 
 // =========================
 // LOGIN
 // =========================
 
-app.post("/login", (req, res) => {
-  res.send("Login functionality not fully implemented yet.");
-});
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
 
+  console.log("LOGIN ATTEMPT:", email, password); // 👈 add this
+
+  try {
+    const [rows] = await db.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
+
+    console.log("DB RESULT:", rows); // 👈 add this
+
+    if (rows.length === 0) {
+      console.log("❌ User not found");
+      return res.send("User not found");
+    }
+
+    const user = rows[0];
+
+    console.log("FOUND USER:", user); // 👈 add this
+
+    if (user.password !== password) {
+      console.log("❌ Password mismatch");
+      return res.send("Incorrect password");
+    }
+
+    console.log("✅ LOGIN SUCCESS");
+
+    req.session.user = user;
+    res.redirect("/");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Login error");
+  }
+});
 app.get("/login", (req, res) => {
-  res.render("login", { title: "Login" });
+  res.render("login"); // make sure login.pug exists
 });
 
+//Log out page 
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/login");
+  });
+});
 
 // =========================
 // USERS LIST
 // =========================
-app.get("/users", async (req, res) => {
+app.get("/users", requireLogin, async (req, res) => {
   try {
     const selectedDegree = req.query.degree;
 
@@ -80,7 +147,7 @@ app.get("/users", async (req, res) => {
 // =========================
 // USER PROFILE
 // =========================
-app.get("/users/:id", async (req, res) => {
+app.get("/users/:id", requireLogin, async (req, res) => {
   try {
 
     const userId = req.params.id;
@@ -118,21 +185,19 @@ app.get("/register", (req, res) => {
 // REGISTER SUBMIT
 // =========================
 app.post("/register", async (req, res) => {
-
   try {
-
-    const { first_name, last_name, degree } = req.body;
+    const { first_name, last_name, degree, email } = req.body;
 
     await db.query(
-      "INSERT INTO users (first_name, last_name, degree) VALUES (?, ?, ?)",
-      [first_name, last_name, degree]
+      "INSERT INTO users (first_name, last_name, degree, email) VALUES (?, ?, ?, ?)",
+      [first_name, last_name, degree, email]
     );
 
-    res.redirect("/users");
+    res.redirect("/login");
 
   } catch (err) {
-    console.error("Register error:", err);
-    res.status(500).send("Error registering user.");
+    console.error(err);
+    res.status(500).send("Register error");
   }
 });
 
@@ -140,13 +205,13 @@ app.post("/register", async (req, res) => {
 // LISTING PAGE (routing entry)
 // =========================
   const listingsRouter = require('./routes/listings');
-  app.use('/listings', listingsRouter);
+  app.use('/listings', requireLogin, listingsRouter);
 
 
 // =========================
 // LISTING DETAILS PAGE
 // =========================
-app.get("/listings/:id", async (req, res) => {
+app.get("/listings/:id", requireLogin, async (req, res) => {
   try {
 
     const listingId = req.params.id;
@@ -177,7 +242,7 @@ app.get("/listings/:id", async (req, res) => {
 // =========================
 // TAGS PAGE
 // =========================
-app.get("/tags", async (req, res) => {
+app.get("/tags", requireLogin, async (req, res) => {
 
   try {
 
@@ -201,7 +266,7 @@ app.get("/tags", async (req, res) => {
 // =========================
 // STREAKS
 // =========================
-app.get("/streaks", (req, res) => {
+app.get("/streaks", requireLogin, (req, res) => {
   res.render("streaks", { title: "Streaks" });
 });
 

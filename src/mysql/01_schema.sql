@@ -5,6 +5,7 @@ CREATE TABLE users (
   password VARCHAR(255),
   degree VARCHAR(100),
   session_ids VARCHAR(255),
+  email VARCHAR(150),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -3,11 +3,11 @@
 -- 1) USERS
 INSERT INTO users (first_name, last_name, password, degree, session_ids)
 VALUES
-('Azeez', 'Bello', 'Az23bstar67', 'Cybersecurity', '1,2'),
-('Olayinka', 'Jibola', 'OJ57ola56-4', 'Business & Computing', '3'),
-('Tom', 'Francis', 'TO23fr560!!', 'Computer Science', '4'),
-('Gloria', 'Amelia', 'AG89pass-5', 'Computing', '5'),
-('Sally', 'Smith', 'SLLS09127A2', 'Digital Media', '6');
+('Azeez', 'Bello', 'Az23bstar67', 'Cybersecurity', '1,2', 'AzeezBello@roehampton.ac.uk'),
+('Olayinka', 'Jibola', 'OJ57ola56-4', 'Business & Computing', '3', 'OlayinkaJibola@roehampton.ac.uk'),
+('Tom', 'Francis', 'TO23fr560!!', 'Computer Science', '4', 'TomFrancis@roehampton.ac.uk'),
+('Gloria', 'Amelia', 'AG89pass-5', 'Computing', '5', 'GloriaAmelia@roehampton.ac.uk'),
+('Sally', 'Smith', 'SLLS09127A2', 'Digital Media', '6', 'SallySmith@roehampton.ac.uk');
 
 -- 2) CATEGORIES
 INSERT INTO categories (name) VALUES

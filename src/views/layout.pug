@@ -9,18 +9,22 @@ html
     header
       h1 StudyBuddy
       nav
-        a(href="/") Home
-        |  · 
-        a(href="/users") Buddies
-        |  · 
-        a(href="/listings") Study Sessions
-        |  · 
-        a(href="/tags") Subjects
-        |  · 
-        a(href="/streaks") Streaks
-         |  · 
-        a(href="/logout") Logout
-
+        if user
+          a(href="/") Home
+          |  · 
+          a(href="/users") Buddies
+          |  · 
+          a(href="/listings") Study Sessions
+          |  · 
+          a(href="/tags") Subjects
+          |  · 
+          a(href="/streaks") Streaks
+          |  · 
+          a(href="/logout") Logout
+        else
+          a(href="/login") Login
+          |  · 
+          a(href="/register") Register
     hr
 
     main
