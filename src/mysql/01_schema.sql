@@ -11,14 +11,14 @@ CREATE TABLE users (
 
 CREATE TABLE modules (
   module_id INT AUTO_INCREMENT PRIMARY KEY,
-  course_id INT,
-  category_name VARCHAR(100),
+  module_name VARCHAR(100),
+  degree VARCHAR(100),
   level VARCHAR(50)
 );
 
-CREATE TABLE categories (
+CREATE TABLE tags (
   tag_id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100)
+  sessionType VARCHAR(100)
 );
 
 CREATE TABLE listings (
@@ -38,7 +38,7 @@ CREATE TABLE listing_tags (
   listing_id INT,
   tag_id INT,
   FOREIGN KEY (listing_id) REFERENCES listings(listing_id),
-  FOREIGN KEY (tag_id) REFERENCES categories(tag_id)
+  FOREIGN KEY (tag_id) REFERENCES tags(tag_id)
 );
 
 CREATE TABLE streaks (

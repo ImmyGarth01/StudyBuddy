@@ -10,7 +10,7 @@ VALUES
 ('Sally', 'Smith', 'SLLS09127A2', 'Digital Media', '6', 'SallySmith@roehampton.ac.uk');
 
 -- 2) CATEGORIES
-INSERT INTO categories (name) VALUES
+INSERT INTO tags (name) VALUES
 ('Group Study'),
 ('One-to-One'),
 ('Exam Prep'),
@@ -18,11 +18,11 @@ INSERT INTO categories (name) VALUES
 ('Advanced');
 
 -- 3) MODULES
-INSERT INTO modules (course_id, category_name, level) VALUES
-(101, 'Networking', 'Beginner'),
-(102, 'Marketing', 'Intermediate'),
-(103, 'Web Development', 'Beginner'),
-(104, 'Databases', 'Advanced');
+INSERT INTO modules (course_id, module_name, degree, level) VALUES
+(101, 'Networking','', 'Beginner'),
+(102, 'Marketing', '','Intermediate'),
+(103, 'Web Development','', 'Beginner'),
+(104, 'Databases', '', 'Advanced');
 
 -- 4) LISTINGS
 INSERT INTO listings (user_id, title, start_time, end_time, location, status, module)
