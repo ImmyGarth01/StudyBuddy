@@ -9,8 +9,8 @@ VALUES
 ('Gloria', 'Amelia', 'AG89pass-5', 'Computing', '5', 'GloriaAmelia@roehampton.ac.uk'),
 ('Sally', 'Smith', 'SLLS09127A2', 'Digital Media', '6', 'SallySmith@roehampton.ac.uk');
 
--- 2) CATEGORIES
-INSERT INTO tags (name) VALUES
+-- 2) TAGS
+INSERT INTO tags (sessionType) VALUES
 ('Group Study'),
 ('One-to-One'),
 ('Exam Prep'),
