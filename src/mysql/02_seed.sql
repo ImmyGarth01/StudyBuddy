@@ -18,7 +18,7 @@ INSERT INTO tags (sessionType) VALUES
 ('Advanced');
 
 -- 3) MODULES
-INSERT INTO modules (course_id, module_name, degree, level) VALUES
+INSERT INTO modules (module_id, module_name, degree, level) VALUES
 (101, 'Networking','Cyber Security', 'Beginner'),
 (102, 'Marketing','Business and Computing','Intermediate'),
 (103, 'Web Development','Digital Media', 'Beginner'),
