@@ -45,7 +45,7 @@ router.get("/:degree", async (req, res) => {
   ORDER BY listings.start_time ASC
 `, [degree]);
 
-    const userId = 1;
+    const userId = req.session.user.user_id;;
 
     const [requests] = await db.query(
       'SELECT listing_id FROM join_requests WHERE user_id = ?',

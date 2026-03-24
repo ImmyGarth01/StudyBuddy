@@ -6,7 +6,7 @@ const db = require("../services/db");
 // GET data from listings table:
 router.get("/", async (req, res) => {
   try {
-    const userId = 1;
+    const userId = req.session.user.user_id;
 
     const [rows] = await db.query(`
       SELECT listing_id, title, module, location, start_time, status
@@ -40,22 +40,31 @@ router.get("/", async (req, res) => {
 // POST data given onto the webpage:
 
 router.post("/:id/join", async (req, res) => {
-  console.log("JOIN ROUTE HIT");
-  const listingId = req.params.id;
-  const userId = 15;
-
   try {
-    await db.query(
-      'INSERT INTO join_requests (user_id, listing_id, status) VALUES (?, ?, ?)',
-      [userId, listingId, 'pending']
+    const userId = req.session.user.user_id;; 
+    const listingId = req.params.id;
+
+    //  Prevent duplicate requests
+    const [existing] = await db.query(
+      "SELECT * FROM join_requests WHERE user_id = ? AND listing_id = ?",
+      [userId, listingId]
     );
 
-    res.redirect("/listings?success=1");
+    if (existing.length > 0) {
+      return res.redirect("/subjects?error=already_requested");
+    }
+
+    // Create request
+    await db.query(
+      "INSERT INTO join_requests (user_id, listing_id, status) VALUES (?, ?, 'pending')",
+      [userId, listingId]
+    );
+
+    res.redirect("/subjects?success=request_sent");
 
   } catch (err) {
     console.error(err);
-    //redirects user instead of opening an error page:
-    res.redirect("/listings?error=1");
+    res.status(500).send("Join request failed");
   }
 });
 
