@@ -2,8 +2,10 @@ extends layout
 
 block content
 
+ 
+  // shows all degrees:
+  
   if !selectedDegree
-    
 
     .degree-container
       each item in degrees
@@ -29,16 +31,55 @@ block content
             else
               img(src="/images/default.png", alt="Default")
 
-          p.degree-name= item.degree
+          p.degree-name= item.degree 
 
-
+   
   else
-    h2 Modules for #{selectedDegree}
+    //showing listings for degree clicked on:
+    h2 Study Sessions for #{selectedDegree}
 
     a(href="/subjects") ← Back to Degrees
 
-    .module-container
-      each module in modules
-        .module-card
-          h3= module.module_name
-          p Level: #{module.level}
+    .listings-container
+      if listings && listings.length
+
+        each listing in listings
+          .listing-card
+
+            img.profile(src="/images/bookIcon.png")
+
+            h3= listing.title
+
+            p
+              strong Module:
+              | #{listing.module_name}
+
+            p
+              strong Level:
+              | #{listing.level}
+
+            p
+              strong Session Type:
+              | #{listing.sessionType || 'General'}
+
+            p
+              strong Location:
+              | #{listing.location}
+
+            p
+              strong Start time:
+              | #{listing.start_time}
+
+            p
+              strong Status:
+              | #{listing.status}
+
+            .join-container
+              if requestedListingIds && requestedListingIds.includes(listing.listing_id)
+                button.join-btn(disabled) Request Sent
+              else
+                form(method="POST" action=`/listings/${listing.listing_id}/join`)
+                  button.join-btn(type="submit") Request to Join
+
+      else
+        p No study sessions available for this subject.
