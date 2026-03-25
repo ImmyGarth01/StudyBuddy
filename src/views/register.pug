@@ -3,6 +3,8 @@ extends layout
 block content
   h2 Register
 
+
+
   form(method="POST" action="/register")
     div
       label(for="first_name") First Name
@@ -30,10 +32,21 @@ block content
         option(value="Digital Media") Digital Media
 
     br
+    if error
+    p(style="color:red; font-weight:bold;")= error
+    
+    div
+      label(for="email") Email
+      br
+      input(type="email" id="email" name="email" required)
+
+    br
 
     div
-    label(for="email") Email
+      label(for="password") Password
+      br
+      input(type="password" id="password" name="password" required)
+
     br
-    input(type="email" name="email" required)
 
     button(type="submit") Register
