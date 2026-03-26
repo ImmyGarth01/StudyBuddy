@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  h1 Edit Modules
+
+  form(action="/profile/modules" method="POST")
+    each module in modules
+      label
+        input(
+          type="checkbox"
+          name="modules"
+          value=module.module_id
+          checked=(selected.includes(module.module_id) ? true : false)
+        )
+        | #{module.module_name}
+      br
+
+    br
+    button(type="submit") Save Changes

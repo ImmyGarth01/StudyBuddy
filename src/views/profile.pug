@@ -1,0 +1,47 @@
+extends layout
+
+block content
+  h1 My Profile
+
+  .profile-container
+    h2 #{user.first_name} #{user.last_name}
+
+    // Profile Picture
+    //  ADDED — hide picture if user selected hide_picture
+    if !privacy.hide_picture
+      if user.profile_pic
+        img(
+          src=`/uploads/${user.profile_pic}`
+          alt="Profile Picture"
+          style="width:150px;height:150px;border-radius:50%;object-fit:cover;"
+        )
+      else
+        img(
+          src="/images/default.png"
+          alt="Default Profile Picture"
+          style="width:150px;height:150px;border-radius:50%;object-fit:cover;"
+        )
+
+    br
+    br
+
+    //  ADDED — hide email if user selected hide_email
+    if !privacy.hide_email
+      p
+        strong Email:
+        |  #{user.email}
+
+    //  ADDED — hide degree if user selected hide_degree
+    if !privacy.hide_degree
+      p
+        strong Degree:
+        |  #{user.degree}
+
+    hr
+
+    h3 Actions
+    ul
+      li: a(href="/profile/edit") Edit Profile
+      li: a(href="/profile/modules") Edit Modules
+      li: a(href="/profile/hide-info") Hide Information
+      li: a(href="/profile/upload-picture") Upload Profile Picture

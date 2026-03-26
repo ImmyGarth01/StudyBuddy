@@ -73,3 +73,10 @@ CREATE TABLE notifications (
 
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+CREATE TABLE user_modules (
+    user_id INT NOT NULL,
+    module_id INT NOT NULL,
+    PRIMARY KEY (user_id, module_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (module_id) REFERENCES modules(module_id)
+);

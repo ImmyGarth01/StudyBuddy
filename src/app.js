@@ -7,6 +7,9 @@ const session = require("express-session");
 const notificationsRouter = require("./routes/notifications");
 const messagesRouter = require("./routes/messages");
 
+// import the new profile routes
+const userProfileRoutes = require("./routes/userprofiles");
+
 // Parse form data
 app.use(express.urlencoded({ extended: true }));
 
@@ -36,6 +39,12 @@ const db = mysql.createPool({
   database: "studybuddy"
 });
 
+// make DB available to all routes (needed for Edit Modules)
+app.use((req, res, next) => {
+  req.db = db;
+  next();
+});
+
 // Middleware (REQUIRES LOGIN)
 
 const auth = require("./routes/authentication");
@@ -48,11 +57,14 @@ app.use("/", authRouter);
 app.use((req, res, next) => {
   res.locals.user = req.session.user;
   next();
-}); 
+});
 
-// Messge and notification registering 
+// Message and notification registering 
 app.use("/notifications", notificationsRouter);
 app.use("/messages", messagesRouter);
+
+// ADDED — mount the profile routes
+app.use("/profile", requireLogin, userProfileRoutes);
 
 // =========================
 // Login In Page - Opening Page
@@ -102,7 +114,6 @@ app.get("/users", requireLogin, async (req, res) => {
   }
 });
 
-
 // =========================
 // USER PROFILE
 // =========================
@@ -131,13 +142,11 @@ app.get("/users/:id", requireLogin, async (req, res) => {
   }
 });
 
-
 // =========================
 // LISTING PAGE (routing entry)
 // =========================
 const listingsRouter = require('./routes/listings');
 app.use('/listings', requireLogin, listingsRouter);
-
 
 // =========================
 // LISTING DETAILS PAGE
@@ -169,12 +178,10 @@ app.get("/listings/:id", requireLogin, async (req, res) => {
   }
 });
 
-
 // =========================
 // SUBJECTS PAGE
 // =========================
 app.use("/subjects", require("./routes/subjects"));
-
 
 // =========================
 // STREAKS
@@ -215,7 +222,7 @@ app.get("/streaks", requireLogin, async (req, res) => {
 
             const allParticipants = [host, ...participants].filter(p => p !== null);
             const uniqueParticipants = allParticipants.filter((p, idx, self) =>
-                idx === self.findIndex(p2 => p2.user_id === p.user_id)
+                idx === self.findIndex(p2 => p2.user_id === p2.user_id)
             );
 
             listingsWithParticipants.push({
@@ -264,7 +271,6 @@ app.get("/streaks", requireLogin, async (req, res) => {
     }
 });
 
-
 // =========================
 // DB TEST
 // =========================
@@ -279,7 +285,6 @@ app.get("/db_test", async (req, res) => {
   }
 
 });
-
 
 // =========================
 // START SERVER

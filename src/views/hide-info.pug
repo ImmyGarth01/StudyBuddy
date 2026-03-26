@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h1 Hide Information
+
+  form(action="/profile/hide-info" method="POST")
+    label
+      input(type="checkbox" name="hide_email" checked=privacy.hide_email)
+      | Hide Email
+    br
+
+    label
+      input(type="checkbox" name="hide_degree" checked=privacy.hide_degree)
+      | Hide Degree
+    br
+
+    label
+      input(type="checkbox" name="hide_modules" checked=privacy.hide_modules)
+      | Hide Modules
+    br
+
+    label
+      input(type="checkbox" name="hide_picture" checked=privacy.hide_picture)
+      | Hide Profile Picture
+    br
+
+    button(type="submit") Save Settings
