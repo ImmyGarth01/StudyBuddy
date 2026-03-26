@@ -1,9 +1,26 @@
 extends layout
 
 block content
-  h2 Study Streaks
-  p Track your daily study progress.
+  .container
+    h1 Your Study Streak
 
-  ul
-    li Current streak: 0 days
-    li Longest streak: 0 days
+    .streak-card(style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 20px; border-radius: 24px; text-align: center; margin-bottom: 30px;")
+      h2(style="font-size: 48px; margin: 0;") 🔥 #{streak}
+      p(style="font-size: 18px; margin: 5px 0 0;") day streak!
+
+    h2 Your Upcoming & Past Sessions
+
+    if listings && listings.length
+      .listings-container
+        each listing in listings
+          .listing-card
+            h3
+              a(href=`/listings/${listing.listing_id}`) #{listing.title}
+            p.module Module: #{listing.module}
+            p.location Location: #{listing.location}
+            p.time #{new Date(listing.start_time).toLocaleString()}
+            p.status Status: #{listing.status}
+    else
+      p You are not part of any study sessions yet. 
+        a(href="/subjects") Browse subjects
+        |  to join one!

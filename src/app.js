@@ -14,24 +14,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: "studybuddy-secret",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  rolling: true, // refresh expiry on activity
+  cookie: { maxAge: 600000 } // 10 minutes
 }));
 
-function requireLogin(req, res, next) {
-  if (!req.session.user) {
-    return res.redirect("/login");
-  }
-  next();
-}
-
-app.use((req, res, next) => {
-  res.locals.user = req.session.user;
-  next();
-}); 
-
-// Messge and notification registering 
-app.use("/notifications", notificationsRouter);
-app.use("/messages", messagesRouter);
 // View engine
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
@@ -48,7 +35,26 @@ const db = mysql.createPool({
   password: "password",  
   database: "studybuddy"
 });
-// =====================
+
+// Middleware (REQUIRES LOGIN)
+
+const auth = require("./routes/authentication");
+const requireLogin = auth.requireLogin;
+
+const authRouter = require("./routes/authentication");
+app.use("/", authRouter);
+
+// Make user available in views
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
+  next();
+}); 
+
+// Messge and notification registering 
+app.use("/notifications", notificationsRouter);
+app.use("/messages", messagesRouter);
+
+// =========================
 // Login In Page - Opening Page
 // =========================
 app.get("/", requireLogin, (req, res) => {
@@ -57,58 +63,6 @@ app.get("/", requireLogin, (req, res) => {
   }
 
   res.render("home", { title: "Home" });
-});
-
-// =========================
-// LOGIN
-// =========================
-
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  console.log("LOGIN ATTEMPT:", email, password); // 👈 add this
-
-  try {
-    const [rows] = await db.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email]
-    );
-
-    console.log("DB RESULT:", rows); // 👈 add this
-
-    if (rows.length === 0) {
-      console.log("❌ User not found");
-      return res.send("User not found");
-    }
-
-    const user = rows[0];
-
-    console.log("FOUND USER:", user); // 👈 add this
-
-    if (user.password !== password) {
-      console.log("❌ Password mismatch");
-      return res.send("Incorrect password");
-    }
-
-    console.log("✅ LOGIN SUCCESS");
-
-    req.session.user = user;
-    res.redirect("/");
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Login error");
-  }
-});
-app.get("/login", (req, res) => {
-  res.render("login"); // make sure login.pug exists
-});
-
-//Log out page 
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.redirect("/login");
-  });
 });
 
 // =========================
@@ -179,38 +133,10 @@ app.get("/users/:id", requireLogin, async (req, res) => {
 
 
 // =========================
-// REGISTER PAGE
-// =========================
-app.get("/register", (req, res) => {
-  res.render("register", { title: "Register" });
-});
-
-
-// =========================
-// REGISTER SUBMIT
-// =========================
-app.post("/register", async (req, res) => {
-  try {
-    const { first_name, last_name, degree, email } = req.body;
-
-    await db.query(
-      "INSERT INTO users (first_name, last_name, degree, email) VALUES (?, ?, ?, ?)",
-      [first_name, last_name, degree, email]
-    );
-
-    res.redirect("/login");
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Register error");
-  }
-});
-
-// =========================
 // LISTING PAGE (routing entry)
 // =========================
-  const listingsRouter = require('./routes/listings');
-  app.use('/listings', requireLogin, listingsRouter);
+const listingsRouter = require('./routes/listings');
+app.use('/listings', requireLogin, listingsRouter);
 
 
 // =========================
@@ -247,15 +173,95 @@ app.get("/listings/:id", requireLogin, async (req, res) => {
 // =========================
 // SUBJECTS PAGE
 // =========================
-
 app.use("/subjects", require("./routes/subjects"));
 
 
 // =========================
 // STREAKS
 // =========================
-app.get("/streaks", requireLogin, (req, res) => {
-  res.render("streaks", { title: "Streaks" });
+app.get("/streaks", requireLogin, async (req, res) => {
+    try {
+        const userId = req.session.user.user_id;
+
+        const [participatedListings] = await db.query(
+            `SELECT DISTINCT 
+                l.listing_id, l.title, l.module, l.location, l.start_time, l.status
+            FROM listings l
+            LEFT JOIN join_requests j ON l.listing_id = j.listing_id
+            WHERE l.user_id = ? 
+               OR (j.user_id = ? AND j.status = 'accepted')
+            ORDER BY l.start_time DESC`,
+            [userId, userId]
+        );
+
+        const listingsWithParticipants = [];
+        for (const listing of participatedListings) {
+            const [hostRows] = await db.query(
+                `SELECT u.user_id, u.first_name, u.last_name, u.degree
+                 FROM users u
+                 WHERE u.user_id = (SELECT user_id FROM listings WHERE listing_id = ?)`,
+                [listing.listing_id]
+            );
+            const host = hostRows[0] || null;
+
+            const [participants] = await db.query(
+                `SELECT u.user_id, u.first_name, u.last_name, u.degree
+                 FROM users u
+                 INNER JOIN join_requests j ON u.user_id = j.user_id
+                 WHERE j.listing_id = ? AND j.status = 'accepted'
+                 AND u.user_id != ?`,
+                [listing.listing_id, host?.user_id || 0]
+            );
+
+            const allParticipants = [host, ...participants].filter(p => p !== null);
+            const uniqueParticipants = allParticipants.filter((p, idx, self) =>
+                idx === self.findIndex(p2 => p2.user_id === p.user_id)
+            );
+
+            listingsWithParticipants.push({
+                ...listing,
+                participants: uniqueParticipants
+            });
+        }
+
+        const [pastSessionDates] = await db.query(
+            `SELECT DISTINCT DATE(l.start_time) as session_date
+            FROM listings l
+            LEFT JOIN join_requests j ON l.listing_id = j.listing_id
+            WHERE (l.user_id = ? OR (j.user_id = ? AND j.status = 'accepted'))
+                AND l.start_time <= NOW()
+            ORDER BY session_date DESC`,
+            [userId, userId]
+        );
+
+        let streak = 0;
+        if (pastSessionDates.length > 0) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let expectedDate = today;
+
+            for (const row of pastSessionDates) {
+                const sessionDate = new Date(row.session_date);
+                sessionDate.setHours(0, 0, 0, 0);
+                if (sessionDate.getTime() === expectedDate.getTime()) {
+                    streak++;
+                    expectedDate.setDate(expectedDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+        }
+
+        res.render("streaks", {
+            title: "My Streaks",
+            listings: listingsWithParticipants,
+            streak: streak
+        });
+
+    } catch (err) {
+        console.error("Streaks error:", err);
+        res.status(500).send("Error loading streaks page.");
+    }
 });
 
 
