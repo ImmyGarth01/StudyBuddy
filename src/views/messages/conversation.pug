@@ -1,0 +1,22 @@
+extends ../layout
+
+block content
+  .container
+    .chat-header
+      a.back-btn(href="/messages") ← Back
+      h1 Chat with #{otherUser.first_name} #{otherUser.last_name}
+      p.degree #{otherUser.degree}
+
+    .chat-messages
+      each msg in messages
+        .message(class=msg.sender_id === session.user.user_id ? 'sent' : 'received')
+          .message-content= msg.content
+          .message-time= new Date(msg.created_at).toLocaleString()
+          if msg.sender_id === session.user.user_id && msg.is_read
+            span.read-status Read
+
+    .chat-input
+      form(method="post" action="/messages/send")
+        input(type="hidden" name="receiver_id" value=otherUser.user_id)
+        textarea(name="content" placeholder="Type a message..." required)
+        button(type="submit") Send

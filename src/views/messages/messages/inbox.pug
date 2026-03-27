@@ -1,0 +1,39 @@
+extends ../layout
+
+block content
+  .container
+    h1 Messages
+
+    if requests && requests.length
+      h2 Message Requests
+      .requests-list
+        each req in requests
+          .request-card
+            p
+              strong #{req.first_name} #{req.last_name}
+              |  (#{req.degree})
+            if req.sender_id === req.user_id  // the other user is sender
+              p Wants to message you.
+              form(method="post" action=`/messages/request/${req.user_id}/accept`)
+                button(type="submit") Accept
+              form(method="post" action=`/messages/request/${req.user_id}/decline`)
+                button(type="submit") Decline
+            else
+              p You requested to message them.
+              span.status Pending...
+
+    h2 Conversations
+    if conversations && conversations.length
+      .conversations-list
+        each conv in conversations
+          a(href=`/messages/${conv.user_id}`).conversation-card
+            .conv-info
+              h3 #{conv.first_name} #{conv.last_name}
+              p.degree #{conv.degree}
+              p.last-message #{conv.message_content}
+              p.time #{new Date(conv.created_at).toLocaleString()}
+              if conv.is_read_by_current_user === false
+                span.unread-badge New
+    else
+      p No conversations yet.
+        a(href="/users") Find users to message
