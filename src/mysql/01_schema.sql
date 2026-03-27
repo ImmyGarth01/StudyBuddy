@@ -80,7 +80,7 @@ CREATE TABLE user_modules (
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (module_id) REFERENCES modules(module_id)
 );
-CREATE TABLE IF NOT EXISTS user_privacy (
+CREATE TABLE user_privacy (
     user_id INT PRIMARY KEY,
     hide_email TINYINT(1) DEFAULT 0,
     hide_degree TINYINT(1) DEFAULT 0,
