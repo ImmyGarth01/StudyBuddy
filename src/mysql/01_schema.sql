@@ -30,7 +30,8 @@ CREATE TABLE listings (
   location VARCHAR(150),
   status VARCHAR(50),
   module VARCHAR(100),
-  FOREIGN KEY (user_id) REFERENCES users(user_id)
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  participants VARCHAR(150)
 );
 
 CREATE TABLE listing_tags (
