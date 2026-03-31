@@ -14,6 +14,7 @@ router.get("/", async (req, res) => {
       ORDER BY start_time ASC
     `);
 
+    // Get current user's join requests
     const [requests] = await db.query(
       'SELECT listing_id FROM join_requests WHERE user_id = ?',
       [userId]
@@ -21,13 +22,26 @@ router.get("/", async (req, res) => {
 
     const requestedListingIds = requests.map(r => r.listing_id);
 
+    // Add accepted participants to each listing
+    for (let listing of rows) {
+      const [participants] = await db.query(`
+        SELECT u.user_id, u.first_name
+        FROM join_requests jr
+        JOIN users u ON jr.user_id = u.user_id
+        WHERE jr.listing_id = ?
+        AND jr.status = 'accepted'
+      `, [listing.listing_id]);
+
+      listing.participants = participants;
+    }
+
     const success = req.query.success;
 
     res.render("listings", {
       title: "Listings",
       listings: rows,
       requestedListingIds,
-      success: req.query.success
+      success
     });
 
   } catch (err) {

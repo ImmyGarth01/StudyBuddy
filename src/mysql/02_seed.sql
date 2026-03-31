@@ -129,7 +129,25 @@ VALUES
 (2, 1, 'pending'),
 (3, 1, 'accepted'),
 (4, 2, 'pending'),
-(5, 3, 'declined');
+(5, 3, 'declined'),
+
+(2, 7, 'accepted'),
+(3, 7, 'accepted'),
+(4, 8, 'pending'),
+(5, 9, 'accepted'),
+
+(1, 5, 'accepted'),
+(2, 6, 'pending'),
+(4, 12, 'accepted'),
+
+(3, 10, 'accepted'),
+(5, 11, 'pending'),
+
+(1, 13, 'pending'),
+(2, 14, 'accepted'),
+
+(3, 15, 'accepted'),
+(4, 16, 'pending');
 
 INSERT INTO notifications (user_id, message, is_read)
 VALUES

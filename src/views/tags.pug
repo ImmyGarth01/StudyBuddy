@@ -2,9 +2,7 @@ extends layout
 
 block content
 
- 
   // shows all degrees:
-  
   if !selectedDegree
 
     .degree-container
@@ -31,11 +29,10 @@ block content
             else
               img(src="/images/default.png", alt="Default")
 
-          p.degree-name= item.degree 
+          p.degree-name= item.degree
 
-   
   else
-    //showing listings for degree clicked on:
+    // showing listings for degree clicked on:
     h2 Study Sessions for #{selectedDegree}
 
     a(href="/subjects") ← Back to Degrees
@@ -73,6 +70,23 @@ block content
             p
               strong Status:
               | #{listing.status}
+
+            p
+              strong Participants:
+              if listing.participants && listing.participants.length
+                each participant, index in listing.participants
+                  span.participant-hover
+                    = participant.first_name
+
+                    .participant-tooltip
+                      p Name: #{participant.first_name}
+                      p Degree: #{participant.degree}
+                      p Email: #{participant.email}
+
+                  if index < listing.participants.length - 1
+                    | , 
+              else
+                | No participants yet
 
             .join-container
               if requestedListingIds && requestedListingIds.includes(listing.listing_id)
