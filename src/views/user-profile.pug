@@ -1,19 +1,33 @@
 extends layout
 
 block content
-  h2 User Profile
+  .container
+    h1 User Profile
+    p First Name: #{user.first_name}
+    p Last Name: #{user.last_name}
+    p Degree: #{user.degree}
 
-  p
-    strong First Name:
-    |  #{user.first_name}
-
-  p
-    strong Last Name:
-    |  #{user.last_name}
-
-  p
-    strong Degree:
-    |  #{user.degree}
-
-  p
-    a(href="/users") Back to Users
+    .action-buttons
+      a(href="/users").btn Back to Users
+      
+      - let buttonText = ''
+      - let buttonLink = ''
+      - let disabled = false
+      if requestStatus === 'accepted'
+        - buttonText = 'Chat'
+        - buttonLink = `/messages/${user.user_id}`
+      else if requestStatus === 'pending'
+        - buttonText = 'Request Pending'
+        - buttonLink = '#'
+        - disabled = true
+      else if requestStatus === 'declined'
+        - buttonText = 'Request Declined'
+        - buttonLink = '#'
+        - disabled = true
+      else
+        - buttonText = 'Send Message Request'
+        - buttonLink = `/messages/request/${user.user_id}`
+      if disabled
+        button(disabled)= buttonText
+      else
+        a.btn(href=buttonLink)= buttonText

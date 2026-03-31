@@ -7,16 +7,63 @@ block content
       h1 Chat with #{otherUser.first_name} #{otherUser.last_name}
       p.degree #{otherUser.degree}
 
-    .chat-messages
+    .chat-messages#chatMessages
       each msg in messages
-        .message(class=msg.sender_id === session.user.user_id ? 'sent' : 'received')
+        .message(class=msg.sender_id === user.user_id ? 'sent' : 'received', data-id=msg.message_id)
           .message-content= msg.content
           .message-time= new Date(msg.created_at).toLocaleString()
-          if msg.sender_id === session.user.user_id && msg.is_read
+          if msg.sender_id === user.user_id && msg.is_read
             span.read-status Read
 
     .chat-input
-      form(method="post" action="/messages/send")
+      form(method="post" action="/messages/send" id="sendForm")
         input(type="hidden" name="receiver_id" value=otherUser.user_id)
         textarea(name="content" placeholder="Type a message..." required)
         button(type="submit") Send
+
+  script.
+    const chatDiv = document.getElementById('chatMessages');
+    // Scroll to bottom
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+
+    // Auto-refresh messages every 3 seconds
+    let lastMessageId = 0;
+    const messageElements = document.querySelectorAll('.message');
+    if (messageElements.length) {
+      const lastMsg = messageElements[messageElements.length - 1];
+      lastMessageId = lastMsg.getAttribute('data-id') || 0;
+    }
+
+    function escapeHtml(unsafe) {
+      return unsafe.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    function refreshMessages() {
+      fetch(`/messages/${#{otherUser.user_id}}/poll?last=${lastMessageId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.newMessages && data.newMessages.length) {
+            data.newMessages.forEach(msg => {
+              const messageDiv = document.createElement('div');
+              messageDiv.className = `message ${msg.sender_id === #{user.user_id} ? 'sent' : 'received'}`;
+              messageDiv.setAttribute('data-id', msg.message_id);
+              messageDiv.innerHTML = `
+                <div class="message-content">${escapeHtml(msg.content)}</div>
+                <div class="message-time">${new Date(msg.created_at).toLocaleString()}</div>
+                ${msg.sender_id === #{user.user_id} && msg.is_read ? '<span class="read-status">Read</span>' : ''}
+              `;
+              chatDiv.appendChild(messageDiv);
+              lastMessageId = msg.message_id;
+            });
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+          }
+        })
+        .catch(err => console.error('Poll error:', err));
+    }
+
+    setInterval(refreshMessages, 3000);

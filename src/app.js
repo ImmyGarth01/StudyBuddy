@@ -46,7 +46,6 @@ app.use((req, res, next) => {
 });
 
 // Middleware (REQUIRES LOGIN)
-
 const auth = require("./routes/authentication");
 const requireLogin = auth.requireLogin;
 
@@ -61,7 +60,7 @@ app.use((req, res, next) => {
 
 // Message and notification registering 
 app.use("/notifications", notificationsRouter);
-app.use("/messages", messagesRouter);
+app.use("/messages", requireLogin, messagesRouter); // ✅ added requireLogin
 
 // ADDED — mount the profile routes
 app.use("/profile", requireLogin, userProfileRoutes);
@@ -78,28 +77,36 @@ app.get("/", requireLogin, (req, res) => {
 });
 
 // =========================
-// USERS LIST
+// USERS LIST (with request status and exclusion)
 // =========================
 app.get("/users", requireLogin, async (req, res) => {
   try {
+    const currentUserId = req.session.user.user_id;
     const selectedDegree = req.query.degree;
 
     const [degrees] = await db.query(
       "SELECT DISTINCT degree FROM users ORDER BY degree ASC"
     );
 
-    let users;
+    let usersQuery = `
+      SELECT u.user_id, u.first_name, u.last_name, u.degree,
+             mr.status AS request_status
+      FROM users u
+      LEFT JOIN message_requests mr ON 
+          (mr.sender_id = ? AND mr.receiver_id = u.user_id) 
+          OR (mr.receiver_id = ? AND mr.sender_id = u.user_id)
+      WHERE u.user_id != ?
+    `;
+    const params = [currentUserId, currentUserId, currentUserId];
 
     if (selectedDegree) {
-      [users] = await db.query(
-        "SELECT user_id, first_name, last_name, degree FROM users WHERE degree = ? ORDER BY first_name ASC",
-        [selectedDegree]
-      );
-    } else {
-      [users] = await db.query(
-        "SELECT user_id, first_name, last_name, degree FROM users ORDER BY first_name ASC"
-      );
+      usersQuery += " AND u.degree = ?";
+      params.push(selectedDegree);
     }
+
+    usersQuery += " ORDER BY u.first_name ASC";
+
+    const [users] = await db.query(usersQuery, params);
 
     res.render("users", {
       title: "Users",
@@ -107,7 +114,6 @@ app.get("/users", requireLogin, async (req, res) => {
       users,
       selectedDegree
     });
-
   } catch (err) {
     console.error("Users list error:", err);
     res.status(500).send("Error loading users.");
@@ -115,11 +121,11 @@ app.get("/users", requireLogin, async (req, res) => {
 });
 
 // =========================
-// USER PROFILE
+// USER PROFILE (with request status)
 // =========================
 app.get("/users/:id", requireLogin, async (req, res) => {
   try {
-
+    const currentUserId = req.session.user.user_id;
     const userId = req.params.id;
 
     const [rows] = await db.query(
@@ -131,11 +137,22 @@ app.get("/users/:id", requireLogin, async (req, res) => {
       return res.status(404).send("User not found.");
     }
 
-    res.render("user-profile", {
-      title: `${rows[0].first_name} ${rows[0].last_name}`,
-      user: rows[0]
-    });
+    const profileUser = rows[0];
 
+    // Get request status between current user and this user
+    const [statusRows] = await db.query(`
+      SELECT status FROM message_requests
+      WHERE (sender_id = ? AND receiver_id = ?)
+         OR (sender_id = ? AND receiver_id = ?)
+    `, [currentUserId, userId, userId, currentUserId]);
+
+    const requestStatus = statusRows.length ? statusRows[0].status : null;
+
+    res.render("user-profile", {
+      title: `${profileUser.first_name} ${profileUser.last_name}`,
+      user: profileUser,
+      requestStatus
+    });
   } catch (err) {
     console.error("User profile error:", err);
     res.status(500).send("Error loading user.");
@@ -153,7 +170,6 @@ app.use('/listings', requireLogin, listingsRouter);
 // =========================
 app.get("/listings/:id", requireLogin, async (req, res) => {
   try {
-
     const listingId = req.params.id;
 
     const [rows] = await db.query(
@@ -171,7 +187,6 @@ app.get("/listings/:id", requireLogin, async (req, res) => {
       title: rows[0].title,
       listing: rows[0]
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).send("Listing details error");
@@ -222,7 +237,7 @@ app.get("/streaks", requireLogin, async (req, res) => {
 
             const allParticipants = [host, ...participants].filter(p => p !== null);
             const uniqueParticipants = allParticipants.filter((p, idx, self) =>
-                idx === self.findIndex(p2 => p2.user_id === p2.user_id)
+                idx === self.findIndex(p2 => p2.user_id === p.user_id)
             );
 
             listingsWithParticipants.push({
@@ -275,7 +290,6 @@ app.get("/streaks", requireLogin, async (req, res) => {
 // DB TEST
 // =========================
 app.get("/db_test", async (req, res) => {
-
   try {
     const users = await db.query("SELECT * FROM users");
     res.json(users);
@@ -283,7 +297,6 @@ app.get("/db_test", async (req, res) => {
     console.error("DB error:", err);
     res.status(500).send("Database error");
   }
-
 });
 
 // =========================

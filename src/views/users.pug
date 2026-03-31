@@ -1,31 +1,47 @@
 extends layout
 
 block content
-  h2 Users
+  h1 Users
 
-  if selectedDegree
-    p
-      strong Filtered by:
-      |  #{selectedDegree}
-    p
-      a(href="/users") Show all users
+  form(action="/users" method="get")
+    label Filter by degree:
+    select(name="degree" onchange="this.form.submit()")
+      option(value="") All
+      option(value="Artificial Intelligence") Artificial Intelligence
+      option(value="Business & Computing") Business & Computing
+      option(value="Chemistry") Chemistry
+      option(value="Computer Science") Computer Science
+      option(value="Cybersecurity") Cybersecurity
+      option(value="Digital Media") Digital Media
+      option(value="Law") Law
+      option(value="Psychology") Psychology
 
-  h3 Courses
-  if degrees.length === 0
-    p No courses available.
+  if users && users.length
+    .users-list
+      each u in users
+        .user-card
+          h3 #{u.first_name} #{u.last_name}
+          p.degree #{u.degree}
+          - let buttonText = ''
+          - let buttonLink = ''
+          - let disabled = false
+          if u.request_status === 'accepted'
+            - buttonText = 'Chat'
+            - buttonLink = `/messages/${u.user_id}`
+          else if u.request_status === 'pending'
+            - buttonText = 'Request Pending'
+            - buttonLink = '#'
+            - disabled = true
+          else if u.request_status === 'declined'
+            - buttonText = 'Request Declined'
+            - buttonLink = '#'
+            - disabled = true
+          else
+            - buttonText = 'Send Message Request'
+            - buttonLink = `/messages/request/${u.user_id}`
+          if disabled
+            button(disabled)= buttonText
+          else
+            a.btn(href=buttonLink)= buttonText
   else
-    ul
-      each d in degrees
-        li
-          a(href=`/users?degree=${encodeURIComponent(d.degree)}`)= d.degree
-
-  hr
-
-  h3 Students
-  if users.length === 0
     p No users found.
-  else
-    ul
-      each user in users
-        li
-          a(href=`/users/${user.user_id}`)= `${user.first_name} ${user.last_name} (${user.degree})`

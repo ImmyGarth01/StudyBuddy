@@ -90,3 +90,28 @@ router.post("/:id/delete", async (req, res) => {
  
  
 module.exports = router;
+
+// MESSAGE
+
+router.get("/", async (req, res) => {
+    try {
+        const userId = req.session.user.user_id;
+        // Mark all as read (optional)
+        await db.query("UPDATE notifications SET is_read = TRUE WHERE user_id = ?", [userId]);
+        const [notifications] = await db.query(
+            `SELECT * FROM notifications 
+             WHERE user_id = ? 
+             ORDER BY created_at DESC`,
+            [userId]
+        );
+        res.render("notifications", {
+            title: "Notifications",
+            notifications
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading notifications");
+    }
+});
+
+module.exports = router;

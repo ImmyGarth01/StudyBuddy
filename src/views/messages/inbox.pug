@@ -3,6 +3,7 @@ extends ../layout
 block content
   .container
     h1 Messages
+    a.btn(href="/users" style="margin-bottom: 20px; display: inline-block;") New Message
 
     if requests && requests.length
       h2 Message Requests
@@ -12,7 +13,6 @@ block content
             p
               strong #{req.first_name} #{req.last_name}
               |  (#{req.degree})
-            //- the other user is sender
             if req.sender_id === req.user_id
               p Wants to message you.
               form(method="post" action=`/messages/request/${req.user_id}/accept`)
