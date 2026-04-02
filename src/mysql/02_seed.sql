@@ -172,3 +172,14 @@ VALUES
 -- Session ended examples
 (1, 'Your session "Network Security Revision" has ended', TRUE),
 (3, 'Your session "Web Dev Pair Programming" has ended', FALSE);
+
+-- Sample messages (optional)
+INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES
+
+
+-- Sample message requests
+INSERT INTO message_requests (sender_id, receiver_id, status) VALUES
+(1, 2, 'accepted'),
+(1, 3, 'pending'),
+(4, 5, 'declined')
+ON DUPLICATE KEY UPDATE status=VALUES(status);
