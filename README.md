@@ -52,6 +52,16 @@ The repository follows a standard Express.js project structure, with separate fo
 
 Docker configuration files are included to ensure a consistent development environment. 
 
+**AI Usage Transparency
+
+AI tools were used to assist with:
+
+	•	debugging issues
+	•	improving code structure
+	•	enhancing documentation
+
+All core logic and implementation decisions were carried out by the team.
+
 **Team**
 
 * Richard Akole
