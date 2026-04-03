@@ -52,7 +52,7 @@ The repository follows a standard Express.js project structure, with separate fo
 
 Docker configuration files are included to ensure a consistent development environment. 
 
-**AI Usage Transparency
+**AI Usage Transparency**
 
 AI tools were used to assist with:
 
