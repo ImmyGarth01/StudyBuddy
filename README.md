@@ -56,9 +56,9 @@ Docker configuration files are included to ensure a consistent development envir
 
 AI tools were used to assist with:
 
-	•	debugging issues
-	•	improving code structure
-	•	enhancing documentation
+* debugging issues
+* improving code structure
+* enhancing documentation
 
 All core logic and implementation decisions were carried out by the team.
 
