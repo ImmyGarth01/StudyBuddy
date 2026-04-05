@@ -308,21 +308,36 @@ button:hover, .btn:hover{
   position: relative;
   display: inline-block;
   cursor: pointer;
-  margin-right: 4px;
+  margin-right: 6px;
+  white-space: nowrap;
 }
 
 .participant-tooltip {
   display: none;
   position: absolute;
-  top: 25px;
-  left: 0;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
   background: white;
   color: black;
   padding: 10px;
   border-radius: 8px;
   min-width: 180px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  z-index: 100;
+  z-index: 1000;
+}
+
+.participants-section {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.participants-list {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .participant-hover:hover .participant-tooltip {
