@@ -72,19 +72,20 @@ block content
               | #{listing.status}
 
             p
+            .participants-section 
               strong Participants:
               if listing.participants && listing.participants.length
-                each participant, index in listing.participants
-                  span.participant-hover
-                    = participant.first_name
+                span.participants-list
+                  each participant, index in listing.participants
+                    span.participant-hover
+                      = participant.first_name
+                      if index < listing.participants.length - 1
+                        | ,
 
-                    .participant-tooltip
-                      p Name: #{participant.first_name}
-                      p Degree: #{participant.degree}
-                      p Email: #{participant.email}
-
-                  if index < listing.participants.length - 1
-                    | , 
+                      .participant-tooltip
+                        p Name: #{participant.first_name}
+                        p Degree: #{participant.degree}
+                        p Email: #{participant.email}
               else
                 | No participants yet
 
