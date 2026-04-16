@@ -113,3 +113,14 @@ CREATE TABLE IF NOT EXISTS message_requests (
     FOREIGN KEY (receiver_id) REFERENCES users(user_id),
     UNIQUE KEY unique_request (sender_id, receiver_id)
 );
+
+CREATE TABLE password_resets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  token VARCHAR(64) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  INDEX (token)
+);

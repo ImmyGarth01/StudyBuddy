@@ -1,4 +1,4 @@
-version: "3.8"
+
 
 services:
 
@@ -12,6 +12,7 @@ services:
       - "3000:3000"
     depends_on:
       - db
+    restart: always
 
   db:
     image: mysql:8.0
