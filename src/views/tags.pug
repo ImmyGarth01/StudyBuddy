@@ -35,7 +35,9 @@ block content
     // showing listings for degree clicked on:
     h2 Study Sessions for #{selectedDegree}
 
-    a(href="/subjects") ← Back to Degrees
+    .header-actions
+      a(href="/subjects") ← Back to Degrees
+      a.create-btn(href=`/subjects/${encodeURIComponent(selectedDegree)}/create`) + Create Study Group
 
     .listings-container
       if listings && listings.length
@@ -67,6 +69,10 @@ block content
               strong Start time:
               | #{listing.start_time}
 
+            p 
+              strong End time:
+              | #{listing.end_time}
+
             p
               strong Status:
               | #{listing.status}
@@ -88,8 +94,8 @@ block content
                         p Email: #{participant.email}
               else
                 | No participants yet
-
-            .join-container
+            //checks if user has requested to join listing or not: corrects request button accordingly:
+            .join-container 
               if requestedListingIds && requestedListingIds.includes(listing.listing_id)
                 button.join-btn(disabled) Request Sent
               else

@@ -256,6 +256,13 @@ button:hover, .btn:hover{
   display: inline-block; 
 }
 
+.header-actions {
+  display: flex;
+  justify-content: space-between; /* pushes left & right */
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .degree-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

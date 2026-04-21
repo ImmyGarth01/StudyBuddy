@@ -1,0 +1,49 @@
+extends layout
+
+block content
+  h2 Create Study Group for #{selectedDegree}
+
+  a.back-btn(href=`/subjects/${encodeURIComponent(selectedDegree)}`) ← Back to Study Sessions
+
+  form(method="POST", action=`/subjects/${encodeURIComponent(selectedDegree)}/create`)
+    
+    div
+      label(for="title") Title:
+      input(type="text", name="title", id="title", required)
+
+    div
+      label(for="module") Module:
+      select(name="module", id="module", required)
+        option(value="" disabled selected) Select a module
+        each mod in modules
+          option(value=mod.module_name)= mod.module_name
+
+    div
+     label(for="location") Location:
+     select(name="location", id="location", required)
+      option(value="" disabled selected) Select a location
+      option(value="Library A") Library A
+      option(value="Library B") Library B
+      option(value="Lab 1") Lab 1
+      option(value="Lab 2") Lab 2
+      option(value="Lab 3") Lab 3
+
+    div
+     label(for="start_time") Start Date:
+     input(type="datetime-local", name="start_time", id="start_time", required)
+
+    div
+     label(for="end_time") End Date:
+     input(type="datetime-local", name="end_time", id="end_time", required)
+
+    div
+      label(for="sessionType") Session Type:
+      select(name="sessionType", id="sessionType")
+        option(value="") None
+        option(value="Group Study") Group Study
+        option(value="One-to-One") One-to-One
+        option(value="Exam Prep") Exam Prep
+        option(value="Beginner Friendly") Beginner Friendly
+
+    br
+    button(type="submit") Create Listing
