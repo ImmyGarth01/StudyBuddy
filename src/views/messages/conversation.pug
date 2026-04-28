@@ -1,41 +1,102 @@
 extends ../layout
 
 block content
-  .container
+  //- Create conversation display data
+  - const otherName = [otherUser.first_name, otherUser.last_name].filter(Boolean).join(" ")
+  - const otherInitials = `${otherUser.first_name ? otherUser.first_name[0] : ""}${otherUser.last_name ? otherUser.last_name[0] : ""}` || "SB"
+  - const currentInitials = user ? (`${user.first_name ? user.first_name[0] : ""}${user.last_name ? user.last_name[0] : ""}` || "You") : "You"
+  - const messageCount = messages ? messages.length : 0
+
+  .container.chat-container
     .chat-header
-      a.back-btn(href="/messages") ← Back
-      h1 Chat with #{otherUser.first_name} #{otherUser.last_name}
-      p.degree #{otherUser.degree}
+      a.back-btn(href="/messages") Back to inbox
+      .chat-title
+        h1 Chat with #{otherName}
+        p.degree #{otherUser.degree || "StudyBuddy student"}
 
-    .chat-messages#chatMessages
-      each msg in messages
-        .message(class=msg.sender_id === user.user_id ? 'sent' : 'received', data-id=msg.message_id)
-          .message-content= msg.content
-          .message-time= new Date(msg.created_at).toLocaleString()
-          if msg.sender_id === user.user_id && msg.is_read
-            span.read-status Read
+    .chat-layout
+      section.chat-panel
+        .chat-messages#chatMessages
+          if messages && messages.length
+            each msg in messages
+              - const isSent = msg.sender_id === user.user_id
+              .message(class=isSent ? 'sent' : 'received', data-id=msg.message_id)
+                .avatar= isSent ? currentInitials : otherInitials
+                .message-bubble
+                  .message-content= msg.content
+                  .message-meta
+                    span.message-time= new Date(msg.created_at).toLocaleString()
+                    if isSent && msg.is_read
+                      span.read-status Read
+          else
+            .empty-chat-state
+              .avatar.avatar-large= otherInitials
+              h2 Start your chat with #{otherName}
+              p Pick a study prompt or send your own message.
 
-    .chat-input
-      form(method="post" action="/messages/send" id="sendForm")
-        input(type="hidden" name="receiver_id" value=otherUser.user_id)
-        textarea(name="content" placeholder="Type a message..." required)
-        button(type="submit") Send
+        .prompt-panel
+          p.prompt-title Study prompts
+          .prompt-chips
+            button.prompt-chip(type="button" data-prompt=`Hi ${otherUser.first_name}, want to study together this week?`) Study together
+            button.prompt-chip(type="button" data-prompt="What topic are you revising at the moment?") Ask topic
+            button.prompt-chip(type="button" data-prompt="Are you free to compare notes after class?") Compare notes
+
+        .chat-input
+          form(method="post" action="/messages/send" id="sendForm")
+            input(type="hidden" name="receiver_id" value=otherUser.user_id)
+            .input-wrapper
+              textarea#messageInput(name="content" placeholder="Type a message..." required rows="2")
+              button(type="submit") Send
+
+      aside.chat-sidebar
+        .study-card
+          .profile-summary
+            .avatar.avatar-large= otherInitials
+            div
+              h2= otherName
+              p.degree #{otherUser.degree || "StudyBuddy student"}
+
+          .study-detail-list
+            .study-detail
+              span.detail-label Conversation
+              strong #{messageCount} #{messageCount === 1 ? "message" : "messages"}
+            .study-detail
+              span.detail-label Connection
+              strong Approved to chat
+
+          .sidebar-actions
+            a.btn(href=`/users/${otherUser.user_id}`) View profile
+            a.home-secondary-btn(href="/subjects") Find a session
+
+        .study-card
+          h2 Good study starters
+          ul.study-starters
+            li Share the module or topic you are revising.
+            li Ask when they are free for a short study session.
+            li Swap notes or agree one problem to work through.
 
   script.
+    // Create chat page constants
     const chatDiv = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const currentUserId = #{user.user_id};
+    const otherUserId = #{otherUser.user_id};
+    const currentInitials = !{JSON.stringify(currentInitials)};
+    const otherInitials = !{JSON.stringify(otherInitials)};
+
     // Scroll to bottom
     chatDiv.scrollTop = chatDiv.scrollHeight;
 
     // Auto-refresh messages every 3 seconds
     let lastMessageId = 0;
-    const messageElements = document.querySelectorAll('.message');
+    const messageElements = chatDiv.querySelectorAll('.message');
     if (messageElements.length) {
       const lastMsg = messageElements[messageElements.length - 1];
       lastMessageId = lastMsg.getAttribute('data-id') || 0;
     }
 
     function escapeHtml(unsafe) {
-      return unsafe.replace(/[&<>]/g, function(m) {
+      return String(unsafe).replace(/[&<>]/g, function(m) {
         if (m === '&') return '&amp;';
         if (m === '<') return '&lt;';
         if (m === '>') return '&gt;';
@@ -43,21 +104,37 @@ block content
       });
     }
 
+    // Create a new message bubble
+    function createMessageElement(msg) {
+      const isSent = msg.sender_id === currentUserId;
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+      messageDiv.setAttribute('data-id', msg.message_id);
+      messageDiv.innerHTML = `
+        <div class="avatar">${escapeHtml(isSent ? currentInitials : otherInitials)}</div>
+        <div class="message-bubble">
+          <div class="message-content">${escapeHtml(msg.content)}</div>
+          <div class="message-meta">
+            <span class="message-time">${new Date(msg.created_at).toLocaleString()}</span>
+            ${isSent && msg.is_read ? '<span class="read-status">Read</span>' : ''}
+          </div>
+        </div>
+      `;
+      return messageDiv;
+    }
+
     function refreshMessages() {
-      fetch(`/messages/${#{otherUser.user_id}}/poll?last=${lastMessageId}`)
+      fetch(`/messages/${otherUserId}/poll?last=${lastMessageId}`)
         .then(res => res.json())
         .then(data => {
           if (data.newMessages && data.newMessages.length) {
+            const emptyState = chatDiv.querySelector('.empty-chat-state');
+            if (emptyState) {
+              emptyState.remove();
+            }
+
             data.newMessages.forEach(msg => {
-              const messageDiv = document.createElement('div');
-              messageDiv.className = `message ${msg.sender_id === #{user.user_id} ? 'sent' : 'received'}`;
-              messageDiv.setAttribute('data-id', msg.message_id);
-              messageDiv.innerHTML = `
-                <div class="message-content">${escapeHtml(msg.content)}</div>
-                <div class="message-time">${new Date(msg.created_at).toLocaleString()}</div>
-                ${msg.sender_id === #{user.user_id} && msg.is_read ? '<span class="read-status">Read</span>' : ''}
-              `;
-              chatDiv.appendChild(messageDiv);
+              chatDiv.appendChild(createMessageElement(msg));
               lastMessageId = msg.message_id;
             });
             chatDiv.scrollTop = chatDiv.scrollHeight;
@@ -67,3 +144,11 @@ block content
     }
 
     setInterval(refreshMessages, 3000);
+
+    // Add prompt text to the message box
+    document.querySelectorAll('.prompt-chip').forEach(button => {
+      button.addEventListener('click', () => {
+        messageInput.value = button.dataset.prompt;
+        messageInput.focus();
+      });
+    });

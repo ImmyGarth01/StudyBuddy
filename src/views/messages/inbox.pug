@@ -1,40 +1,104 @@
 extends ../layout
 
 block content
-  .container
-    h1 Messages
-    a.btn(href="/users" style="margin-bottom: 20px; display: inline-block;") New Message
+  //- Create inbox summary data
+  - const conversationCount = conversations ? conversations.length : 0
+  - const requestCount = requests ? requests.length : 0
+  - const unreadCount = conversations ? conversations.filter((conv) => conv.is_read_by_current_user === false).length : 0
 
-    if requests && requests.length
-      h2 Message Requests
-      .requests-list
-        each req in requests
-          .request-card
-            p
-              strong #{req.first_name} #{req.last_name}
-              |  (#{req.degree})
-            if req.sender_id === req.user_id
-              p Wants to message you.
-              form(method="post" action=`/messages/request/${req.user_id}/accept`)
-                button(type="submit") Accept
-              form(method="post" action=`/messages/request/${req.user_id}/decline`)
-                button(type="submit") Decline
-            else
-              p You requested to message them.
-              span.status Pending...
+  .container.inbox-container
+    .inbox-header
+      div
+        p.inbox-eyebrow Study messages
+        h1 Messages
+        p Keep study chats, requests, and new conversations in one place.
+      a.btn.inbox-new-message(href="/users") New Message
 
-    h2 Conversations
-    if conversations && conversations.length
-      .conversations-list
-        each conv in conversations
-          a(href=`/messages/${conv.user_id}`).conversation-card
-            .conv-info
-              h3 #{conv.first_name} #{conv.last_name}
-              p.degree #{conv.degree}
-              p.last-message #{conv.last_message}
-              p.time #{new Date(conv.last_message_time).toLocaleString()}
-              if conv.is_read_by_current_user === false
-                span.unread-badge New
-    else
-      p No conversations yet.
-        a(href="/users") Find users to message
+    .inbox-stats
+      .inbox-stat-card
+        span Conversations
+        strong= conversationCount
+      .inbox-stat-card
+        span Unread
+        strong= unreadCount
+      .inbox-stat-card
+        span Requests
+        strong= requestCount
+
+    .inbox-layout
+      .inbox-main
+        if requests && requests.length
+          section.inbox-panel
+            .inbox-panel-heading
+              div
+                h2 Message Requests
+                p Review students who want to start a chat.
+
+            .request-list
+              each req in requests
+                //- Create a message request card
+                - const requestName = [req.first_name, req.last_name].filter(Boolean).join(" ")
+                - const requestInitials = `${req.first_name ? req.first_name[0] : ""}${req.last_name ? req.last_name[0] : ""}` || "SB"
+                .inbox-request-card
+                  .avatar= requestInitials
+                  .request-copy
+                    h3= requestName
+                    p.request-meta= req.degree || "StudyBuddy student"
+                    if req.sender_id === req.user_id
+                      p Wants to message you.
+                    else
+                      p You requested to message them.
+                  if req.sender_id === req.user_id
+                    .request-actions
+                      form(method="post" action=`/messages/request/${req.user_id}/accept`)
+                        button(type="submit") Accept
+                      form(method="post" action=`/messages/request/${req.user_id}/decline`)
+                        button.secondary-action(type="submit") Decline
+                  else
+                    span.status.pending-status Pending
+
+        section.inbox-panel
+          .inbox-panel-heading
+            div
+              h2 Conversations
+              p Open a chat and keep your study plans moving.
+            if conversationCount
+              span.inbox-count #{conversationCount} total
+
+          if conversations && conversations.length
+            .conversations-list
+              each conv in conversations
+                //- Create a conversation card
+                - const convName = [conv.first_name, conv.last_name].filter(Boolean).join(" ")
+                - const convInitials = `${conv.first_name ? conv.first_name[0] : ""}${conv.last_name ? conv.last_name[0] : ""}` || "SB"
+                a.conversation-card(href=`/messages/${conv.user_id}` class=conv.is_read_by_current_user === false ? 'unread' : '')
+                  .avatar= convInitials
+                  .conv-info
+                    .conversation-topline
+                      h3= convName
+                      if conv.is_read_by_current_user === false
+                        span.unread-badge New
+                    p.degree= conv.degree || "StudyBuddy student"
+                    p.last-message= conv.last_message || "No message preview yet."
+                  .conversation-meta
+                    p.time= new Date(conv.last_message_time).toLocaleString()
+                    span.open-chat Open
+          else
+            .empty-state.inbox-empty-state
+              h4 No conversations yet
+              p Start by finding students on your course or sending a study request.
+              a.inline-action(href="/users") Find users to message
+
+      aside.inbox-sidebar
+        .study-card
+          h2 Inbox tips
+          ul.study-starters
+            li Ask about the module before arranging a session.
+            li Suggest one clear time and location.
+            li Keep messages focused on study plans.
+
+        .study-card
+          h2 Quick actions
+          .sidebar-actions
+            a.btn(href="/users") Find students
+            a.home-secondary-btn(href="/subjects") Browse subjects

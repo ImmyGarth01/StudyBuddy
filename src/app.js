@@ -68,12 +68,158 @@ app.use("/profile", requireLogin, userProfileRoutes);
 // =========================
 // Login In Page - Opening Page
 // =========================
-app.get("/", requireLogin, (req, res) => {
+app.get("/", requireLogin, async (req, res) => {
   if (!req.session.user) {
     return res.redirect("/login");
   }
 
-  res.render("home", { title: "Home" });
+  const userId = req.session.user.user_id;
+  const userDegree = req.session.user.degree || null;
+  const formatDate = new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+
+  try {
+    const [
+      [upcomingCountRows],
+      [hostingCountRows],
+      [messageCountRows],
+      [notificationCountRows],
+      [requestCountRows],
+      [peerCountRows],
+      [upcomingSessionRows],
+      [pendingRequestRows]
+    ] = await Promise.all([
+      db.query(
+        `SELECT COUNT(DISTINCT l.listing_id) AS count
+         FROM listings l
+         LEFT JOIN join_requests jr
+           ON jr.listing_id = l.listing_id
+          AND jr.user_id = ?
+          AND jr.status = 'accepted'
+         WHERE (l.user_id = ? OR jr.user_id = ?)
+           AND l.start_time >= NOW()`,
+        [userId, userId, userId]
+      ),
+      db.query(
+        `SELECT COUNT(*) AS count
+         FROM listings
+         WHERE user_id = ?
+           AND start_time >= NOW()`,
+        [userId]
+      ),
+      db.query(
+        `SELECT COUNT(*) AS count
+         FROM messages
+         WHERE receiver_id = ?
+           AND is_read = FALSE`,
+        [userId]
+      ),
+      db.query(
+        `SELECT COUNT(*) AS count
+         FROM notifications
+         WHERE user_id = ?
+           AND is_read = FALSE`,
+        [userId]
+      ),
+      db.query(
+        `SELECT COUNT(*) AS count
+         FROM message_requests
+         WHERE receiver_id = ?
+           AND status = 'pending'`,
+        [userId]
+      ),
+      userDegree
+        ? db.query(
+            `SELECT COUNT(*) AS count
+             FROM users
+             WHERE degree = ?
+               AND user_id != ?`,
+            [userDegree, userId]
+          )
+        : Promise.resolve([[{ count: 0 }]]),
+      db.query(
+        `SELECT DISTINCT
+            l.listing_id,
+            l.title,
+            l.module,
+            l.location,
+            l.start_time,
+            CASE
+              WHEN l.user_id = ? THEN 'Hosting'
+              ELSE 'Joined'
+            END AS role
+         FROM listings l
+         LEFT JOIN join_requests jr
+           ON jr.listing_id = l.listing_id
+          AND jr.user_id = ?
+          AND jr.status = 'accepted'
+         WHERE (l.user_id = ? OR jr.user_id = ?)
+           AND l.start_time >= NOW()
+         ORDER BY l.start_time ASC
+         LIMIT 4`,
+        [userId, userId, userId, userId]
+      ),
+      db.query(
+        `SELECT
+            mr.sender_id AS user_id,
+            mr.created_at,
+            u.first_name,
+            u.last_name,
+            u.degree
+         FROM message_requests mr
+         JOIN users u ON u.user_id = mr.sender_id
+         WHERE mr.receiver_id = ?
+           AND mr.status = 'pending'
+         ORDER BY mr.created_at DESC
+         LIMIT 3`,
+        [userId]
+      )
+    ]);
+
+    const dashboard = {
+      upcomingSessions: upcomingCountRows[0].count,
+      hostingSessions: hostingCountRows[0].count,
+      unreadMessages: messageCountRows[0].count,
+      unreadNotifications: notificationCountRows[0].count,
+      pendingRequests: requestCountRows[0].count,
+      sameDegreePeers: peerCountRows[0].count
+    };
+
+    const upcomingSessions = upcomingSessionRows.map((session) => ({
+      ...session,
+      displayTime: formatDate.format(new Date(session.start_time))
+    }));
+
+    const pendingRequests = pendingRequestRows.map((request) => ({
+      ...request,
+      displayDate: formatDate.format(new Date(request.created_at))
+    }));
+
+    res.render("home", {
+      title: "Home",
+      dashboard,
+      upcomingSessions,
+      pendingRequests
+    });
+  } catch (err) {
+    console.error("Home page error:", err);
+    res.status(500).render("home", {
+      title: "Home",
+      dashboard: {
+        upcomingSessions: 0,
+        hostingSessions: 0,
+        unreadMessages: 0,
+        unreadNotifications: 0,
+        pendingRequests: 0,
+        sameDegreePeers: 0
+      },
+      upcomingSessions: [],
+      pendingRequests: [],
+      loadError: true
+    });
+  }
 });
 
 // =========================
@@ -381,6 +527,8 @@ app.get("/db_test", async (req, res) => {
 // =========================
 // START SERVER
 // =========================
-app.listen(3000, () => {
-  console.log("Server running at http://127.0.0.1:3000/");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://127.0.0.1:${PORT}/`);
 });

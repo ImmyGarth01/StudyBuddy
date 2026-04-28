@@ -11,20 +11,15 @@ html
       h1 StudyBuddy
       nav
         if user
-          a(href="/profile") Profile
-          | · 
-          a(href="/subjects") Subjects
-          | · 
+          a(href="/") Home
+          a(href="/subjects") Subject
+          a(href="/messages") Message
           a(href="/streaks") Streaks
-          | · 
-          a(href="/notifications") Notifications
-          | · 
-          a(href="/messages") Messages
-          | ·
+          a(href="/notifications") Notification
+          a(href="/profile") Profile
           a(href="/logout") Logout
         else
           a(href="/login") Login
-          | · 
           a(href="/register") Register
 
     hr

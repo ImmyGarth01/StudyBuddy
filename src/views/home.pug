@@ -1,12 +1,160 @@
 extends layout
 
 block content
-  h2 Home
-  p Welcome to StudyBuddy Page
-  p QuickTap:
-  ul
-    li: a(href="/users") Users
-    li: a(href="/login") Login
-    li: a(href="/register") Register
-    li: a(href="/streaks") Streaks
-    li: a(href="/listings") Study Sessions
+  - const displayName = user ? [user.first_name, user.last_name].filter(Boolean).join(" ") : "StudyBuddy member"
+  - const stats = dashboard || { upcomingSessions: 0, hostingSessions: 0, unreadMessages: 0, unreadNotifications: 0, pendingRequests: 0, sameDegreePeers: 0 }
+  - const sessions = upcomingSessions || []
+  - const requests = pendingRequests || []
+
+  .home-dashboard
+    if loadError
+      section.home-alert
+        strong Dashboard info is temporarily unavailable.
+        p You can still use StudyBuddy through the quick links below while the page data reloads.
+
+    section.home-hero
+      .home-hero-copy
+        p.home-eyebrow Study smarter together
+        h2 Welcome back, #{displayName}
+        p.home-hero-text
+          | Keep your study sessions, messages, and course community in one place.
+          | Use this space as your starting point each time you log in.
+        .home-hero-actions
+          a.btn(href="/subjects") Browse subjects
+          a.home-secondary-btn(href="/listings") Find a study session
+
+      .home-hero-lower
+        figure.home-hero-visual
+          img.home-hero-image(
+            src="/images/home-anime-hero.png"
+            alt="Anime-style illustration of StudyBuddy students studying together"
+          )
+
+        .home-hero-panel
+          p.degree-pill= user && user.degree ? user.degree : "StudyBuddy community"
+          h3 Today at a glance
+          ul.hero-highlights
+            li
+              strong= stats.upcomingSessions
+              span upcoming sessions on your schedule
+            li
+              strong= stats.unreadMessages
+              span unread messages waiting in your inbox
+            li
+              strong= stats.pendingRequests
+              span pending message requests to review
+
+    section.home-stat-grid
+      article.home-stat-card
+        p.home-stat-label Upcoming sessions
+        p.home-stat-value= stats.upcomingSessions
+
+      article.home-stat-card
+        p.home-stat-label Hosting
+        p.home-stat-value= stats.hostingSessions
+
+      article.home-stat-card
+        p.home-stat-label Unread notifications
+        p.home-stat-value= stats.unreadNotifications
+
+      article.home-stat-card
+        p.home-stat-label Course mates nearby
+        p.home-stat-value= stats.sameDegreePeers
+
+    .home-grid
+      section.home-panel
+        .panel-heading
+          div
+            h3 Upcoming study sessions
+            p Your next sessions are listed here so you can jump back in quickly.
+          a.inline-action(href="/listings") View all
+
+        if sessions.length
+          .session-list
+            each session in sessions
+              article.session-item
+                .session-copy
+                  .session-topline
+                    h4= session.title
+                    span.role-tag= session.role
+                  p.session-meta
+                    span= session.module || "Module to be confirmed"
+                    span= session.location || "Location to be confirmed"
+                  p.session-time= session.displayTime
+                a.session-link(href=`/listings/${session.listing_id}`) Open
+        else
+          .empty-state
+            h4 Nothing booked yet
+            p Join a study session or create one through the subjects and listings pages.
+            a.inline-action(href="/subjects") Explore subjects
+
+      section.home-panel
+        .panel-heading
+          div
+            h3 Message requests
+            p New requests from other students show up here first.
+          a.inline-action(href="/messages") Open inbox
+
+        if requests.length
+          .request-list
+            each request in requests
+              article.request-item
+                .request-copy
+                  h4 #{request.first_name} #{request.last_name}
+                  p.request-meta
+                    span= request.degree || "StudyBuddy student"
+                    span Received #{request.displayDate}
+                a.session-link(href=`/messages/request/${request.user_id}`) Review
+        else
+          .empty-state
+            h4 No pending requests
+            p When someone wants to connect, you will be able to review it from here.
+
+    section.home-panel.about-section
+      .panel-heading
+        div
+          h3 About StudyBuddy
+          p A quick introduction to what the platform does and why it exists.
+
+      .about-grid
+        article.about-card
+          span.quick-link-kicker What is StudyBuddy?
+          h4 A shared space for student collaboration
+          p
+            | StudyBuddy is a web platform that helps university students find study partners,
+            | join study sessions, and stay connected with other students on similar courses.
+
+        article.about-card
+          span.quick-link-kicker Why it matters
+          h4 Built to make studying less isolating
+          p
+            | The purpose of StudyBuddy is to make studying more social, supportive, and consistent.
+            | It helps students build better habits, stay motivated, and learn with a community
+            | instead of working alone.
+
+    section.home-panel
+      .panel-heading
+        div
+          h3 Quick links
+          p Jump straight to the parts of StudyBuddy you will use most.
+
+      .quick-link-grid
+        a.quick-link-card(href="/profile")
+          span.quick-link-kicker Personalise
+          h4 Profile
+          p Update your details, picture, and visibility settings.
+
+        a.quick-link-card(href="/users")
+          span.quick-link-kicker Connect
+          h4 Find students
+          p Browse other users and look for people on your course.
+
+        a.quick-link-card(href="/messages")
+          span.quick-link-kicker Chat
+          h4 Inbox
+          p Keep conversations moving and respond to new requests.
+
+        a.quick-link-card(href="/streaks")
+          span.quick-link-kicker Stay consistent
+          h4 Streaks
+          p Track your activity and keep your study routine going.
