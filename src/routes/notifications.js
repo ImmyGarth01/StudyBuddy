@@ -90,6 +90,170 @@ router.post("/:id/delete", async (req, res) => {
     res.status(500).send("Error deleting notification");
   }
 });
+
+
+// =========================
+// ACCEPT NOTIFICATION
+// =========================
+router.post("/:notificationId/accept", async (req, res) => {
+  try {
+    const hostId = req.session.user.user_id;
+    const notificationId = req.params.notificationId;
+
+    // step 1:  get notification
+    const [notifRows] = await db.query(
+      `SELECT message
+       FROM notifications
+       WHERE notification_id = ?
+       AND user_id = ?`,
+      [notificationId, hostId]
+    );
+
+    if (notifRows.length === 0) {
+      return res.status(404).send("Notification not found");
+    }
+
+    const message = notifRows[0].message;
+
+    // step 2: get the session title
+    const titleMatch = message.match(/session "(.+)"/);
+    const nameMatch = message.split(" requested")[0];
+
+    if (!titleMatch) {
+      return res.status(400).send("Could not parse notification");
+    }
+
+    const listingTitle = titleMatch[1];
+    const requesterName = nameMatch;
+
+    // step 3: find matching join request
+    const [rows] = await db.query(
+      `SELECT jr.id, jr.user_id, l.title
+       FROM join_requests jr
+       JOIN listings l ON jr.listing_id = l.listing_id
+       JOIN users u ON jr.user_id = u.user_id
+       WHERE l.title = ?
+       AND l.user_id = ?
+       AND u.first_name = ?
+       AND jr.status = 'pending'
+       LIMIT 1`,
+      [listingTitle, hostId, requesterName]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send("Join request not found");
+    }
+
+    const request = rows[0];
+
+    // step 4: set status to accepted
+    await db.query(
+      `UPDATE join_requests
+       SET status = 'accepted'
+       WHERE id = ?`,
+      [request.id]
+    );
+
+    // step 5: send notification to requester
+    await db.query(
+      `INSERT INTO notifications (user_id, message, is_read, created_at)
+       VALUES (?, ?, 0, NOW())`,
+      [
+        request.user_id,
+        `You have been accepted into "${request.title}".`
+      ]
+    );
+
+    // step 6 : delete the original join request notification
+    await db.query(
+      `DELETE FROM notifications WHERE notification_id = ?`,
+      [notificationId]
+    );
+
+res.redirect("/notifications");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Accept failed");
+  }
+});
+
+
+// =========================
+// DECLINE NOTIFICATION
+// =========================
+router.post("/:notificationId/decline", async (req, res) => {
+  try {
+    const hostId = req.session.user.user_id;
+    const notificationId = req.params.notificationId;
+
+    // step 1: extract the notification information
+    const [notifRows] = await db.query(
+      `SELECT message
+       FROM notifications
+       WHERE notification_id = ?
+       AND user_id = ?`,
+      [notificationId, hostId]
+    );
+
+    const message = notifRows[0].message;
+
+    const titleMatch = message.match(/session "(.+)"/);
+    const nameMatch = message.split(" requested")[0];
+
+    const listingTitle = titleMatch[1];
+    const requesterName = nameMatch;
+
+    // step 2: find the join request and requesting user
+    const [rows] = await db.query(
+      `SELECT jr.id, jr.user_id, l.title
+       FROM join_requests jr
+       JOIN listings l ON jr.listing_id = l.listing_id
+       JOIN users u ON jr.user_id = u.user_id
+       WHERE l.title = ?
+       AND l.user_id = ?
+       AND u.first_name = ?
+       AND jr.status = 'pending'
+       LIMIT 1`,
+      [listingTitle, hostId, requesterName]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send("Join request not found");
+    }
+
+    const request = rows[0];
+
+    // step 3: change the request to declined on db
+    await db.query(
+      `UPDATE join_requests
+       SET status = 'declined'
+       WHERE id = ?`,
+      [request.id]
+    );
+
+    // step 4: send notification to requester to say session was declined
+    await db.query(
+      `INSERT INTO notifications (user_id, message, is_read, created_at)
+       VALUES (?, ?, 0, NOW())`,
+      [
+        request.user_id,
+        `Your request to join "${request.title}" was declined.`
+      ]
+    );
+
+    await db.query(
+      `DELETE FROM notifications WHERE notification_id = ?`,
+      [notificationId]
+    );
+
+    res.redirect("/notifications");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Decline failed");
+  }
+});
  
  
 module.exports = router;

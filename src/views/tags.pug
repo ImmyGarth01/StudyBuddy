@@ -65,26 +65,30 @@ block content
               strong Location:
               | #{listing.location}
 
+            - const start = new Date(listing.start_time)
+
             p
               strong Start time:
-              | #{listing.start_time}
+              |  #{start.toLocaleDateString('en-GB')} #{start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
 
-            p 
+            - const end = new Date(listing.end_time)
+
+            p
               strong End time:
-              | #{listing.end_time}
+              |  #{end.toLocaleDateString('en-GB')} #{end.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
 
             p
               strong Status:
               | #{listing.status}
 
             p
-            .participants-section 
+             .participants-section
               strong Participants:
               if listing.participants && listing.participants.length
                 span.participants-list
                   each participant, index in listing.participants
                     span.participant-hover
-                      = participant.first_name
+                      = participant.user_id === user.user_id ? "You" : participant.first_name
                       if index < listing.participants.length - 1
                         | ,
 
@@ -95,12 +99,19 @@ block content
               else
                 | No participants yet
             //checks if user has requested to join listing or not: corrects request button accordingly:
-            .join-container 
-              if requestedListingIds && requestedListingIds.includes(listing.listing_id)
-                button.join-btn(disabled) Request Sent
-              else
-                form(method="POST" action=`/listings/${listing.listing_id}/join`)
-                  button.join-btn(type="submit") Request to Join
+            .join-container
+              if ownedListingIds && ownedListingIds.includes(listing.listing_id)
+                a.join-btn(href=`/listings/${listing.listing_id}`) View Your Session Details
 
+              else if acceptedListingIds && acceptedListingIds.includes(listing.listing_id)
+                form(method="POST", action=`/listings/${listing.listing_id}/leave`)
+                  button.join-btn(type="submit") Leave Study Session
+
+              else if requestedListingIds && requestedListingIds.includes(listing.listing_id)
+                button.join-btn(disabled) Request Sent
+
+              else
+                form(method="POST", action=`/listings/${listing.listing_id}/join`)
+                  button.join-btn(type="submit") Request to Join
       else
         p No study sessions available for this subject.

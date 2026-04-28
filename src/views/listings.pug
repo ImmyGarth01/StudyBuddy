@@ -20,17 +20,28 @@ block content
           strong Location:
           | #{listing.location}
 
-        p
-          strong Start time:
-          | #{listing.start_time}
+        - const start = new Date(listing.start_time)
 
+        p
+              strong Start time:
+              |  #{start.toLocaleDateString('en-GB')} #{start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+            
         p
           strong Status:
           | #{listing.status}
 
         .join-container
-          if requestedListingIds.includes(listing.listing_id)
+          if ownedListingIds.includes(listing.listing_id)
+            form(method="POST", action=`/listings/${listing.listing_id}/delete`)
+              button.join-btn(type="submit") Delete Your Study Session
+
+          else if acceptedListingIds.includes(listing.listing_id)
+            form(method="POST", action=`/listings/${listing.listing_id}/leave`)
+              button.join-btn(type="submit") Leave Study Session
+
+          else if requestedListingIds.includes(listing.listing_id)
             button.join-btn(disabled) Request Sent
+
           else
-            form(method="POST" action=`/listings/${listing.listing_id}/join`)
-              button.join-btn(type="submit") Request to Join
+            form(method="POST", action=`/listings/${listing.listing_id}/join`)
+              button.join-btn(type="submit") Request to Join 

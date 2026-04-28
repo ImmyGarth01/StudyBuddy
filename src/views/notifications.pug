@@ -41,8 +41,16 @@ block content
           small.time= notif.created_at
  
         .notif-actions
-          if !notif.is_read
-            span.badge New
- 
+        if !notif.is_read
+          span.badge New
+
+        if notif.message.includes("requested to join")
+          form(method="POST", action=`/notifications/${notif.notification_id}/accept`)
+            button.accept-btn(type="submit") Accept
+
+          form(method="POST", action=`/notifications/${notif.notification_id}/decline`)
+            button.decline-btn(type="submit") Decline
+        
+        else 
           form(method="POST", action=`/notifications/${notif.notification_id}/delete`)
-            button.delete-btn(type="submit") Delete
+           button.delete-btn(type="submit") Delete

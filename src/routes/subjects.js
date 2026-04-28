@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../services/db");
 
+
 //getting list of all Degrees  from module table to display on screen
 router.get("/", async (req, res) => {
   try {
@@ -165,11 +166,23 @@ router.get("/:degree", async (req, res) => {
     const userId = req.session.user.user_id;
 
     const [requests] = await db.query(
-      'SELECT listing_id FROM join_requests WHERE user_id = ?',
+      `SELECT listing_id, status 
+      FROM join_requests 
+      WHERE user_id = ?`,
       [userId]
     );
 
-    const requestedListingIds = requests.map(r => r.listing_id);
+    const requestedListingIds = requests
+      .filter(r => r.status === "pending")
+      .map(r => r.listing_id);
+
+    const acceptedListingIds = requests
+      .filter(r => r.status === "accepted")
+      .map(r => r.listing_id);
+
+    const ownedListingIds = rows
+      .filter(l => l.user_id === userId)
+      .map(l => l.listing_id);
 
     for (let listing of rows) {
       const [participants] = await db.query(`
@@ -197,8 +210,11 @@ router.get("/:degree", async (req, res) => {
       selectedDegree: degree,
       listings: rows,
       requestedListingIds,
+      acceptedListingIds,
+      ownedListingIds,
       degrees: [],
-      modules: []
+      modules: [],
+      user: req.session.user
     });
 
   } catch (err) {

@@ -1,32 +1,56 @@
 extends layout
 
 block content
-  h2 Listing Details
+  .listing-details-page
+    .details-card
+      h2 Session Details
 
-  p
-    strong Title:
-    |  #{listing.title}
+      if isOwner
+        form(method="POST", action=`/listings/${listing.listing_id}/edit`)
+          label Title
+          input(type="text", name="title", value=listing.title)
 
-  p
-    strong Module:
-    |  #{listing.module}
+          label Location
+          select(name="location")
+            option(value="Library A", selected=listing.location === "Library A") Library A
+            option(value="Library B", selected=listing.location === "Library B") Library B
+            option(value="Lab 1", selected=listing.location === "Lab 1") Lab 1
+            option(value="Lab 2", selected=listing.location === "Lab 2") Lab 2
+            option(value="Lab 3", selected=listing.location === "Lab 3") Lab 3
 
-  p
-    strong Location:
-    |  #{listing.location}
+          label Start Time
+          input(type="datetime-local", name="start_time", value=listing.start_time_input)
 
-  p
-    strong Start Time:
-    |  #{listing.start_time}
+          button.join-btn(type="submit") Save Changes
 
-  p
-    strong Status:
-    |  #{listing.status}
+      else
+        .details-section
+          .detail-row
+            span.detail-label Title
+            span.detail-value #{listing.title}
 
-  if listing.first_name && listing.last_name
-    p
-      strong Created by:
-      |  #{listing.first_name} #{listing.last_name}
+          .detail-row
+            span.detail-label Module
+            span.detail-value #{listing.module}
 
-  p
-    a(href="/listings") Back to Listings
+          .detail-row
+            span.detail-label Location
+            span.detail-value #{listing.location}
+
+          - const start = new Date(listing.start_time)
+
+          .detail-row
+            span.detail-label Start Time
+            span.detail-value #{start.toLocaleDateString('en-GB')} #{start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+
+        if listing.end_time
+          .detail-row
+            span.detail-label End Time
+            span.detail-value #{listing.end_time}
+
+        if listing.first_name && listing.last_name
+          .detail-row
+            span.detail-label Created by
+            span.detail-value #{listing.first_name} #{listing.last_name}
+
+      a.back-link(href="javascript:history.back()") ← Back

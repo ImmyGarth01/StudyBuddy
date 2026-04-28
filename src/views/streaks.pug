@@ -20,6 +20,30 @@ block content
             p.location Location: #{listing.location}
             p.time #{new Date(listing.start_time).toLocaleString()}
             p.status Status: #{listing.status}
+
+            .participants-section
+              strong Participants:
+              if listing.participants && listing.participants.length
+                span.participants-list
+                  each participant, index in listing.participants
+                    span.participant-hover
+                      = participant.user_id === user.user_id ? "You" : participant.first_name
+                      if index < listing.participants.length - 1
+                        | ,
+
+                      .participant-tooltip
+                        p Name: #{participant.first_name}
+                        p Degree: #{participant.degree}
+                        p Email: #{participant.email}
+              else
+                p No participants yet
+
+            if listing.user_id === user.user_id
+              form(action=`/streaks/delete/${listing.listing_id}` method="POST")
+                button(type="submit") Delete Study Session
+            else
+              form(action=`/streaks/leave/${listing.listing_id}` method="POST")
+                button(type="submit") Leave Study Session
     else
       p You are not part of any study sessions yet. 
         a(href="/subjects") Browse subjects
