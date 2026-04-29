@@ -4,22 +4,27 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const session = require("express-session");
+
+// Routers
 const notificationsRouter = require("./routes/notifications");
 const messagesRouter = require("./routes/messages");
-
-// import the new profile routes
 const userProfileRoutes = require("./routes/userprofiles");
+const authRouter = require("./routes/authentication");
+
+// Database
+const db = require("./services/db");
 
 // Parse form data
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Sessions
 app.use(session({
   secret: "studybuddy-secret",
   resave: false,
   saveUninitialized: false,
-  rolling: true, // refresh expiry on activity
-  cookie: { maxAge: 600000 } // 10 minutes
+  rolling: true,
+  cookie: { maxAge: 600000 }
 }));
 
 // View engine
@@ -29,42 +34,17 @@ app.set("view engine", "pug");
 // Static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Database
-const mysql = require("mysql2/promise");
-
-let db;
-
-// If running in GitHub Actions CI, skip real DB connection
-if (process.env.CI) {
-  console.log("CI detected — using mock database");
-  db = {
-    query: async () => {
-      return []; // return empty results so routes don't break
-    }
-  };
-} else {
-  // Local / Docker environment — real DB
-  db = mysql.createPool({
-    host: "db",
-    user: "root",
-    password: "password",
-    database: "studybuddy"
-  });
-}
-
-module.exports = db;
-
-// make DB available to all routes (needed for Edit Modules)
+// Make DB available to all routes
 app.use((req, res, next) => {
   req.db = db;
   next();
 });
 
-// Middleware (REQUIRES LOGIN)
+// Auth middleware
 const auth = require("./routes/authentication");
 const requireLogin = auth.requireLogin;
 
-const authRouter = require("./routes/authentication");
+// Auth routes
 app.use("/", authRouter);
 
 // Make user available in views
@@ -73,12 +53,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// Message and notification registering 
+// Routes
 app.use("/notifications", notificationsRouter);
-app.use("/messages", requireLogin, messagesRouter); // ✅ added requireLogin
-
-// ADDED — mount the profile routes
+app.use("/messages", requireLogin, messagesRouter);
 app.use("/profile", requireLogin, userProfileRoutes);
+
+// EXPORT THE APP (THIS FIXES YOUR ERROR)
+module.exports = app;
 
 // =========================
 // Login In Page - Opening Page
@@ -540,10 +521,9 @@ app.get("/db_test", async (req, res) => {
 });
 
 // =========================
-// START SERVER
+// START SERVER (REMOVE THIS FROM app.js)
 // =========================
-const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://127.0.0.1:${PORT}/`);
-});
+// Instead, export the app so index.js can start it:
+module.exports = app;
+

@@ -2,8 +2,8 @@
 FROM node:latest
 
 
-# Set working directory
-WORKDIR /app
+# Set working directory (must match docker-compose)
+WORKDIR /src
 
 
 # Copy package info and install dependencies
