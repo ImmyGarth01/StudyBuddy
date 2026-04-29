@@ -1,22 +1,31 @@
-# This is a basic workflow that is triggered by a push to the deploy branch
-
 name: On push to deploy branch
 
-# Controls when the action will run. Triggered by push to deploy branch
 on:
   push:
     branches:
       - deploy
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
+  build-and-test:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Runs a single command using the runner's shell
-      - name: Send message
-        run: echo "The deploy branch has been updated"
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Build Docker image
+        run: docker build -t studybuddy .
+
+      - name: Install xvfb for headless browser testing
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: Run Nightwatch tests
+        run: xvfb-run --auto-servernum npm test -- --env chrome
