@@ -1,0 +1,28 @@
+name: Manual workflow for docker
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check
+        run: echo "first job done!"
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: check node
+        run: node --version
+      - name: check dir
+        run: ls
+      - name: Create the .env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+      - name: Check
+        run: cat .env
+      - name: Install dependencies
+        run: npm install
+      - uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker-compose-deploy.yml"
