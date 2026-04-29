@@ -1,10 +1,9 @@
-
-
 services:
 
   web:
     build:
       context: ./
+    working_dir: /src
     volumes:
       - .:/src
       - /src/node_modules

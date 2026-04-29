@@ -1,20 +1,24 @@
 # Base image
 FROM node:latest
 
+
 # Set working directory
-WORKDIR /src
+WORKDIR /app
+
 
 # Copy package info and install dependencies
 COPY package*.json ./
 RUN npm install -g supervisor
 RUN npm install
 
+
 # Copy the rest of your files
 COPY . .
+
 
 # Expose the port
 EXPOSE 3000
 
-# START THE APP (THIS WAS MISSING)
-CMD ["npm", "start"]
 
+# Start the app
+CMD ["node", "src/index.js"]
