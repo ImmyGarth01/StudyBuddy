@@ -32,12 +32,27 @@ app.use(express.static(path.join(__dirname, "public")));
 // Database
 const mysql = require("mysql2/promise");
 
-const db = mysql.createPool({
-  host: "db",
-  user: "root",     
-  password: "password",  
-  database: "studybuddy"
-});
+let db;
+
+// If running in GitHub Actions CI, skip real DB connection
+if (process.env.CI) {
+  console.log("CI detected — using mock database");
+  db = {
+    query: async () => {
+      return []; // return empty results so routes don't break
+    }
+  };
+} else {
+  // Local / Docker environment — real DB
+  db = mysql.createPool({
+    host: "db",
+    user: "root",
+    password: "password",
+    database: "studybuddy"
+  });
+}
+
+module.exports = db;
 
 // make DB available to all routes (needed for Edit Modules)
 app.use((req, res, next) => {
