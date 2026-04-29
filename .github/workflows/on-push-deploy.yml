@@ -22,8 +22,9 @@ jobs:
         run: npm install
 
       - name: Start the app
-        run: npm start &
-      
+        run: |
+          nohup npm start > app.log 2>&1 &
+
       - name: Wait for server to start
         run: sleep 5
 
@@ -35,3 +36,4 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t studybuddy .
+
