@@ -24,7 +24,13 @@ router.use((req, res, next) => { // runs on every request in the server
 // LOGIN PAGE
 
 router.get("/login", (req, res) => { // Handles GET requests to Login (GET = HTTP Request to retrieve data to server)
-  res.render("login"); // renders the login view
+  res.render("login", { title: "Login" }); // renders the login view
+});
+
+// ABOUT PAGE
+
+router.get("/about", (req, res) => { // Shows information about StudyBuddy before login
+  res.redirect("/login#about-studybuddy"); // sends users to the about section on login
 });
 
 

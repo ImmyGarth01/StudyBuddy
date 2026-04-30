@@ -201,6 +201,124 @@ button:hover, .btn:hover{
   color: var(--muted);
 }
 
+/* AUTH AND ABOUT */
+.auth-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 22px;
+  align-items: start;
+  margin-bottom: 22px;
+}
+
+.auth-card,
+.auth-info-panel,
+.about-hero,
+.about-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.auth-eyebrow {
+  margin: 0 0 8px;
+  color: #8fb4ff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.auth-card h2,
+.auth-info-panel h3,
+.about-hero h2,
+.about-step h4 {
+  margin: 0;
+}
+
+.auth-intro,
+.auth-info-panel p,
+.about-hero-text,
+.about-step p {
+  margin: 8px 0 0;
+}
+
+.auth-card form {
+  margin-top: 18px;
+}
+
+.auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.auth-links a {
+  min-width: 150px;
+}
+
+.auth-info-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.about-page {
+  display: grid;
+  gap: 22px;
+}
+
+.about-hero {
+  display: grid;
+  gap: 12px;
+  background:
+    linear-gradient(140deg, rgba(17, 22, 42, 0.98), rgba(11, 18, 35, 0.92)),
+    var(--card);
+}
+
+.about-hero-text {
+  max-width: 68ch;
+  font-size: 16px;
+}
+
+.about-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+.about-panel {
+  margin: 0;
+}
+
+.about-steps {
+  display: grid;
+  gap: 14px;
+}
+
+.about-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.about-step strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(79, 124, 255, 0.14);
+  color: #c8d9ff;
+}
+
 /* Listings grid layout */
 
 .listings-container {
@@ -1539,7 +1657,8 @@ button:hover, .btn:hover{
 
 @media (max-width: 860px) {
   .home-hero-lower,
-  .home-grid {
+  .home-grid,
+  .auth-page {
     grid-template-columns: 1fr;
   }
 }
@@ -1559,5 +1678,14 @@ button:hover, .btn:hover{
   .session-link,
   .inline-action {
     white-space: normal;
+  }
+
+  .auth-links,
+  .auth-links a {
+    width: 100%;
+  }
+
+  .about-step {
+    grid-template-columns: 1fr;
   }
 }

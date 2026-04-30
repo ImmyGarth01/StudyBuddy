@@ -1,23 +1,86 @@
 extends layout
 
 block content
-  h2 Login
+  .auth-page#login
+    section.auth-card
+      p.auth-eyebrow Welcome back
+      h2 Login
+      p.auth-intro Sign in to manage your study sessions, messages, and course connections.
 
-  form(method="POST" action="/login")
-    div
-      label(for="email") Email
-      br
-      input(type="email" id="email" name="email" required)
+      form(method="POST" action="/login")
+        div
+          label(for="email") Email
+          input(type="email" id="email" name="email" required)
 
-    br
+        div
+          label(for="password") Password
+          input(type="password" id="password" name="password" required)
 
-    div
-      label(for="password") Password
-      br
-      input(type="password" id="password" name="password" required)
+        a(href="/forgot-password") Forgot your password?
 
-    br
+        button(type="submit") Login
 
-    a(href="/forgot-password") Forgot your password?
+    aside.auth-info-panel
+      h3 What is StudyBuddy?
+      p StudyBuddy helps university students find study partners, join study sessions, and stay connected with people on similar courses.
+      a.inline-action(href="#about-studybuddy") Learn more
 
-    button(type="submit") Login
+  .about-page#about-studybuddy
+    section.about-hero
+      p.home-eyebrow About StudyBuddy
+      h2 Study smarter together
+      p.about-hero-text
+        | StudyBuddy is a web platform for university students who want to find study partners,
+        | join study sessions, and stay connected with people on similar courses.
+      .home-hero-actions
+        a.btn(href="/register") Register
+        a.home-secondary-btn(href="#login") Login
+
+    .about-info-grid
+      article.about-card
+        span.quick-link-kicker Purpose
+        h4 Make studying less isolating
+        p StudyBuddy gives students a shared place to organise revision, message classmates, and build a more consistent study routine.
+
+      article.about-card
+        span.quick-link-kicker Sessions
+        h4 Find and join study groups
+        p Students can browse subjects, view study listings, and join sessions that match their course or module.
+
+      article.about-card
+        span.quick-link-kicker Messages
+        h4 Connect with other students
+        p The messaging feature helps students start conversations, arrange study time, and keep track of requests.
+
+      article.about-card
+        span.quick-link-kicker Progress
+        h4 Stay motivated
+        p Streaks, notifications, and dashboard summaries help students see what is coming up and stay involved.
+
+    section.about-panel
+      .panel-heading
+        div
+          h3 How StudyBuddy Helps
+          p The app is designed around simple student workflows.
+
+      .about-steps
+        .about-step
+          strong 1
+          div
+            h4 Create your profile
+            p Register with your university email and choose your degree.
+        .about-step
+          strong 2
+          div
+            h4 Browse subjects and sessions
+            p Look for sessions linked to your course and request to join.
+        .about-step
+          strong 3
+          div
+            h4 Message study partners
+            p Use messages to arrange times, compare notes, and plan revision.
+        .about-step
+          strong 4
+          div
+            h4 Keep track of activity
+            p Use your home dashboard, notifications, and streaks to stay organised.
